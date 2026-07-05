@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Table, Button, Modal, Form, Input, InputNumber, Select, Space, Typography, message, Tag } from 'antd'
-import { PlusOutlined, DollarOutlined } from '@ant-design/icons'
+import { PlusOutlined, DollarOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { generatePdfReport } from '../utils/pdfReport'
 
 const statusLabels: Record<string, { color: string; label: string }> = {
   pending: { color: 'orange', label: 'Pendiente' },
@@ -12,6 +14,7 @@ const statusLabels: Record<string, { color: string; label: string }> = {
 }
 
 export default function InvoicesPage() {
+  const { user } = useAuth()
   const [payOpen, setPayOpen] = useState(false)
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null)
   const [form] = Form.useForm()
@@ -33,6 +36,7 @@ export default function InvoicesPage() {
   })
 
   const columns = [
+    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'Factura #', dataIndex: 'id', key: 'id', width: 80 },
     { title: 'Cliente', dataIndex: 'customer_name', key: 'customer_name' },
     { title: 'OT #', dataIndex: 'work_order_id', key: 'work_order_id' },
@@ -68,6 +72,32 @@ export default function InvoicesPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <Typography.Title level={4}>Facturación</Typography.Title>
+        <Space>
+          <Button icon={<FilePdfOutlined />} onClick={() => {
+            const rows = data?.results || data || []
+            generatePdfReport({
+              title: 'Facturación',
+              columns: [
+                { header: 'Factura #', dataKey: 'id' },
+                { header: 'Cliente', dataKey: 'customer_name' },
+                { header: 'OT #', dataKey: 'work_order_id' },
+                { header: 'Estado', dataKey: 'status' },
+                { header: 'Subtotal', dataKey: 'subtotal' },
+                { header: 'IVA', dataKey: 'tax' },
+                { header: 'Total', dataKey: 'total' },
+                { header: 'Pagado', dataKey: 'paid_amount' },
+              ],
+              rows: rows.map((r: any) => ({
+                ...r,
+                subtotal: `Bs. ${Number(r.subtotal || 0).toFixed(2)}`,
+                tax: `Bs. ${Number(r.tax || 0).toFixed(2)}`,
+                total: `Bs. ${Number(r.total || 0).toFixed(2)}`,
+                paid_amount: `Bs. ${Number(r.paid_amount || 0).toFixed(2)}`,
+              })),
+              userName: user?.username,
+            })
+          }}>Reporte PDF</Button>
+        </Space>
       </div>
       <Table dataSource={data?.results || data || []} columns={columns} rowKey="id" loading={isLoading} />
       <Modal

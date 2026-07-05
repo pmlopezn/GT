@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Table, Button, Modal, Form, Input, InputNumber, Select, Space, Typography, message, Popconfirm, Tag, Tooltip } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, DollarOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, DollarOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { generatePdfReport } from '../utils/pdfReport'
 
 const vehicleTypes = [
   { value: 'automovil', label: 'Automóvil' },
@@ -14,6 +16,7 @@ const vehicleTypes = [
 ]
 
 export default function ServicesPage() {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [form] = Form.useForm()
@@ -61,6 +64,7 @@ export default function ServicesPage() {
   })
 
   const columns = [
+    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'Nombre', dataIndex: 'name', key: 'name' },
     { title: 'Categoría', dataIndex: 'category_name', key: 'category_name' },
     { title: 'Tiempo Est.', dataIndex: 'estimated_time_minutes', key: 'estimated_time_minutes', render: (v: number) => `${v} min` },
@@ -111,7 +115,22 @@ export default function ServicesPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <Typography.Title level={4}>Catálogo de Servicios</Typography.Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nuevo Servicio</Button>
+        <Space>
+          <Button icon={<FilePdfOutlined />} onClick={() => {
+            const rows = data?.results || data || []
+            generatePdfReport({
+              title: 'Catálogo de Servicios',
+              columns: [
+                { header: 'Nombre', dataKey: 'name' },
+                { header: 'Categoría', dataKey: 'category_name' },
+                { header: 'Tiempo Est.', dataKey: 'estimated_time_minutes' },
+              ],
+              rows,
+              userName: user?.username,
+            })
+          }}>Reporte PDF</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nuevo Servicio</Button>
+        </Space>
       </div>
       <Table dataSource={data?.results || data || []} columns={columns} rowKey="id" loading={isLoading} />
       <Modal

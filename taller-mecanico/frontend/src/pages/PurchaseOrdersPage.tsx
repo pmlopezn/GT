@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Table, Button, Modal, Form, Input, InputNumber, Select, Space, Typography, message, Tag, Popconfirm } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { generatePdfReport } from '../utils/pdfReport'
 
 const statusLabels: Record<string, { color: string; label: string }> = {
   pending: { color: 'orange', label: 'Pendiente' },
@@ -12,6 +14,7 @@ const statusLabels: Record<string, { color: string; label: string }> = {
 }
 
 export default function PurchaseOrdersPage() {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [form] = Form.useForm()
@@ -38,6 +41,7 @@ export default function PurchaseOrdersPage() {
   })
 
   const columns = [
+    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'OC #', dataIndex: 'id', key: 'id', width: 80 },
     { title: 'Proveedor', dataIndex: 'supplier_name', key: 'supplier_name' },
     {
@@ -72,7 +76,24 @@ export default function PurchaseOrdersPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <Typography.Title level={4}>Órdenes de Compra</Typography.Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nueva OC</Button>
+        <Space>
+          <Button icon={<FilePdfOutlined />} onClick={() => {
+            const rows = data?.results || data || []
+            generatePdfReport({
+              title: 'Órdenes de Compra',
+              columns: [
+                { header: 'OC #', dataKey: 'id' },
+                { header: 'Proveedor', dataKey: 'supplier_name' },
+                { header: 'Estado', dataKey: 'status' },
+                { header: 'Fecha', dataKey: 'order_date' },
+                { header: 'Total', dataKey: 'total' },
+              ],
+              rows: rows.map((r: any) => ({ ...r, total: `Bs. ${Number(r.total || 0).toFixed(2)}` })),
+              userName: user?.username,
+            })
+          }}>Reporte PDF</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nueva OC</Button>
+        </Space>
       </div>
       <Table dataSource={data?.results || data || []} columns={columns} rowKey="id" loading={isLoading} />
       <Modal

@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { Table, Button, Modal, Form, Input, InputNumber, Select, Space, Typography, message, Popconfirm, Tag } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { generatePdfReport } from '../utils/pdfReport'
 
 export default function ProductsPage() {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [search, setSearch] = useState('')
@@ -37,6 +40,7 @@ export default function ProductsPage() {
   })
 
   const columns = [
+    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'Nombre', dataIndex: 'name', key: 'name' },
     { title: 'SKU', dataIndex: 'sku', key: 'sku' },
     { title: 'Categoría', dataIndex: 'category_name', key: 'category_name' },
@@ -63,6 +67,22 @@ export default function ProductsPage() {
         <Typography.Title level={4}>Inventario / Productos</Typography.Title>
         <Space>
           <Input prefix={<SearchOutlined />} placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} allowClear style={{ width: 250 }} />
+          <Button icon={<FilePdfOutlined />} onClick={() => {
+            const rows = data?.results || data || []
+            generatePdfReport({
+              title: 'Inventario / Productos',
+              columns: [
+                { header: 'Nombre', dataKey: 'name' },
+                { header: 'SKU', dataKey: 'sku' },
+                { header: 'Categoría', dataKey: 'category_name' },
+                { header: 'Stock', dataKey: 'stock' },
+                { header: 'Stock Mín.', dataKey: 'min_stock' },
+                { header: 'Precio Venta', dataKey: 'sale_price' },
+              ],
+              rows: rows.map((r: any) => ({ ...r, sale_price: `Bs. ${Number(r.sale_price || 0).toFixed(2)}` })),
+              userName: user?.username,
+            })
+          }}>Reporte PDF</Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nuevo Producto</Button>
         </Space>
       </div>

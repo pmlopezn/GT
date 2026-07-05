@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { Table, Button, Modal, Form, Input, Select, Space, Typography, message, Popconfirm, Tag } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { generatePdfReport } from '../utils/pdfReport'
 
 export default function SuppliersPage() {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [search, setSearch] = useState('')
@@ -32,6 +35,7 @@ export default function SuppliersPage() {
   })
 
   const columns = [
+    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'Empresa', dataIndex: 'company_name', key: 'company_name' },
     { title: 'Contacto', dataIndex: 'contact_name', key: 'contact_name' },
     { title: 'Teléfono', dataIndex: 'phone', key: 'phone' },
@@ -56,6 +60,20 @@ export default function SuppliersPage() {
         <Typography.Title level={4}>Proveedores</Typography.Title>
         <Space>
           <Input prefix={<SearchOutlined />} placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} allowClear style={{ width: 250 }} />
+          <Button icon={<FilePdfOutlined />} onClick={() => {
+            const rows = data?.results || data || []
+            generatePdfReport({
+              title: 'Proveedores',
+              columns: [
+                { header: 'Empresa', dataKey: 'company_name' },
+                { header: 'Contacto', dataKey: 'contact_name' },
+                { header: 'Teléfono', dataKey: 'phone' },
+                { header: 'Email', dataKey: 'email' },
+              ],
+              rows,
+              userName: user?.username,
+            })
+          }}>Reporte PDF</Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nuevo Proveedor</Button>
         </Space>
       </div>

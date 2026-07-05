@@ -1,16 +1,20 @@
-import { Card, Row, Col, Statistic, Table, Tag, Typography, Spin } from 'antd'
+import { Card, Row, Col, Statistic, Table, Tag, Typography, Spin, Space, Button } from 'antd'
 import {
   ToolOutlined,
   CalendarOutlined,
   DollarOutlined,
   WarningOutlined,
   FileTextOutlined,
+  FilePdfOutlined,
 } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import api from '../services/api'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { useAuth } from '../contexts/AuthContext'
+import { generatePdfReport } from '../utils/pdfReport'
 
 export default function DashboardPage() {
+  const { user } = useAuth()
   const { data, isLoading } = useQuery({
     queryKey: ['dashboard'],
     queryFn: () => api.get('/dashboard/').then(r => r.data),
@@ -28,6 +32,7 @@ export default function DashboardPage() {
   }
 
   const columns = [
+    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'OT #', dataIndex: 'id', key: 'id', width: 80 },
     { title: 'Cliente', dataIndex: 'customer', key: 'customer' },
     { title: 'Vehículo', dataIndex: 'vehicle', key: 'vehicle' },
@@ -46,7 +51,29 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <Typography.Title level={4}>Dashboard</Typography.Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Typography.Title level={4} style={{ margin: 0 }}>Dashboard</Typography.Title>
+        <Button icon={<FilePdfOutlined />} onClick={async () => {
+          const statusLabels: Record<string, string> = { pending: 'Pendiente', in_progress: 'En Progreso', completed: 'Completado', invoiced: 'Facturado', cancelled: 'Cancelado' }
+          const d = data || {}
+          const summary = [
+            { metric: 'Órdenes Activas', value: String(d.active_orders || 0) },
+            { metric: 'Citas Hoy', value: String(d.today_appointments || 0) },
+            { metric: 'Ingresos del Mes', value: `Bs. ${Number(d.monthly_income || 0).toFixed(2)}` },
+            { metric: 'Stock Bajo', value: String(d.low_stock || 0) },
+          ]
+          await generatePdfReport({
+            title: 'Panel de Control - Resumen',
+            subheader: 'Indicadores generales del taller',
+            columns: [
+              { header: 'Indicador', dataKey: 'metric' },
+              { header: 'Valor', dataKey: 'value' },
+            ],
+            rows: summary,
+            userName: user?.username,
+          })
+        }}>Reporte PDF</Button>
+      </div>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
           <Card>

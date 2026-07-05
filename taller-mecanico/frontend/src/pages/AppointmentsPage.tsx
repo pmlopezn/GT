@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Table, Button, Modal, Form, Input, Select, DatePicker, TimePicker, Space, Typography, message, Popconfirm, Tag } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { generatePdfReport } from '../utils/pdfReport'
 
 const statusLabels: Record<string, string> = {
   scheduled: 'Programada',
@@ -14,6 +16,7 @@ const statusLabels: Record<string, string> = {
 }
 
 export default function AppointmentsPage() {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [form] = Form.useForm()
@@ -55,6 +58,7 @@ export default function AppointmentsPage() {
   })
 
   const columns = [
+    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'Cliente', dataIndex: 'customer_name', key: 'customer_name' },
     { title: 'Vehículo', dataIndex: 'vehicle_info', key: 'vehicle_info' },
     { title: 'Fecha', dataIndex: 'date', key: 'date', render: (v: string) => dayjs(v).format('DD/MM/YYYY') },
@@ -79,7 +83,25 @@ export default function AppointmentsPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <Typography.Title level={4}>Agenda de Citas</Typography.Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nueva Cita</Button>
+        <Space>
+          <Button icon={<FilePdfOutlined />} onClick={() => {
+            const rows = data?.results || data || []
+            generatePdfReport({
+              title: 'Agenda de Citas',
+              columns: [
+                { header: 'Cliente', dataKey: 'customer_name' },
+                { header: 'Vehículo', dataKey: 'vehicle_info' },
+                { header: 'Fecha', dataKey: 'date' },
+                { header: 'Hora', dataKey: 'time' },
+                { header: 'Mecánico', dataKey: 'employee_name' },
+                { header: 'Estado', dataKey: 'status' },
+              ],
+              rows,
+              userName: user?.username,
+            })
+          }}>Reporte PDF</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nueva Cita</Button>
+        </Space>
       </div>
       <Table dataSource={data?.results || data || []} columns={columns} rowKey="id" loading={isLoading} />
       <Modal

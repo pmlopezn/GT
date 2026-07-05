@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Table, Button, Modal, Form, Input, Select, Space, Typography, message, Popconfirm } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { generatePdfReport } from '../utils/pdfReport'
 
 const vehicleTypes = [
   { value: 'automovil', label: 'Automóvil' },
@@ -27,6 +29,7 @@ const yearOptions = Array.from({ length: 2026 - 1970 + 1 }, (_, i) => {
 })
 
 export default function VehiclesPage() {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [search, setSearch] = useState('')
@@ -59,6 +62,7 @@ export default function VehiclesPage() {
   })
 
   const columns = [
+    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'Placa', dataIndex: 'plate', key: 'plate' },
     { title: 'Tipo', dataIndex: 'vehicle_type', key: 'vehicle_type', render: (v: string) => vehicleTypes.find(t => t.value === v)?.label || v },
     { title: 'Marca', dataIndex: 'brand', key: 'brand', render: (v: string) => v.charAt(0).toUpperCase() + v.slice(1).replace('_', ' ') },
@@ -88,6 +92,29 @@ export default function VehiclesPage() {
         <Typography.Title level={4}>Vehículos</Typography.Title>
         <Space>
           <Input prefix={<SearchOutlined />} placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} allowClear style={{ width: 250 }} />
+          <Button icon={<FilePdfOutlined />} onClick={() => {
+            const rows = vehicles?.results || vehicles || []
+            generatePdfReport({
+              title: 'Lista de Vehículos',
+              columns: [
+                { header: 'Placa', dataKey: 'plate' },
+                { header: 'Tipo', dataKey: '_type' },
+                { header: 'Marca', dataKey: 'brand' },
+                { header: 'Modelo', dataKey: 'model' },
+                { header: 'Año', dataKey: 'year' },
+                { header: 'Color', dataKey: 'color' },
+                { header: 'Cliente', dataKey: '_customer' },
+              ],
+              rows: rows.map((r: any) => ({
+                ...r,
+                _type: vehicleTypes.find(t => t.value === r.vehicle_type)?.label || r.vehicle_type,
+                _customer: (Array.isArray(customers) ? customers : []).find((c: any) => c.id === r.customer)
+                  ? `${((Array.isArray(customers) ? customers : []).find((c: any) => c.id === r.customer) as any).first_name} ${((Array.isArray(customers) ? customers : []).find((c: any) => c.id === r.customer) as any).last_name}`
+                  : r.customer,
+              })),
+              userName: user?.username,
+            })
+          }}>Reporte PDF</Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nuevo Vehículo</Button>
         </Space>
       </div>

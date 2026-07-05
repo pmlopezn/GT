@@ -1,9 +1,11 @@
 import { Table, Tag, Button, Select, Space, Typography, message } from 'antd'
-import { PlusOutlined, EyeOutlined } from '@ant-design/icons'
+import { PlusOutlined, EyeOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
 import { useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
+import { generatePdfReport } from '../utils/pdfReport'
 
 const statusLabels: Record<string, { color: string; label: string }> = {
   pending: { color: 'orange', label: 'Pendiente' },
@@ -14,6 +16,7 @@ const statusLabels: Record<string, { color: string; label: string }> = {
 }
 
 export default function WorkOrdersPage() {
+  const { user } = useAuth()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [statusFilter, setStatusFilter] = useState<string>()
@@ -29,6 +32,7 @@ export default function WorkOrdersPage() {
   })
 
   const columns = [
+    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'OT #', dataIndex: 'id', key: 'id', width: 80 },
     { title: 'Cliente', dataIndex: 'customer_name', key: 'customer_name' },
     { title: 'Vehículo', dataIndex: 'vehicle_info', key: 'vehicle_info' },
@@ -77,6 +81,22 @@ export default function WorkOrdersPage() {
             onChange={setStatusFilter}
             options={Object.entries(statusLabels).map(([k, v]) => ({ value: k, label: v.label }))}
           />
+          <Button icon={<FilePdfOutlined />} onClick={() => {
+            const rows = data?.results || data || []
+            generatePdfReport({
+              title: 'Órdenes de Trabajo',
+              columns: [
+                { header: 'OT #', dataKey: 'id' },
+                { header: 'Cliente', dataKey: 'customer_name' },
+                { header: 'Vehículo', dataKey: 'vehicle_info' },
+                { header: 'Mecánico', dataKey: 'assigned_to_name' },
+                { header: 'Estado', dataKey: 'status' },
+                { header: 'Total', dataKey: 'total' },
+              ],
+              rows: rows.map((r: any) => ({ ...r, total: `Bs. ${Number(r.total || 0).toFixed(2)}` })),
+              userName: user?.username,
+            })
+          }}>Reporte PDF</Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/work-orders/new')}>
             Nueva Orden
           </Button>

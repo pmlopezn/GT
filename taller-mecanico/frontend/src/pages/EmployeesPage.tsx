@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { Table, Button, Modal, Form, Input, InputNumber, Select, DatePicker, Space, Typography, message, Popconfirm, Tag } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { generatePdfReport } from '../utils/pdfReport'
 
 export default function EmployeesPage() {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [form] = Form.useForm()
@@ -32,6 +35,7 @@ export default function EmployeesPage() {
   })
 
   const columns = [
+    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'CI', dataIndex: 'ci', key: 'ci', width: 120 },
     { title: 'Nombre', dataIndex: 'full_name', key: 'full_name' },
     { title: 'Usuario', dataIndex: 'username_display', key: 'username_display' },
@@ -70,7 +74,24 @@ export default function EmployeesPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <Typography.Title level={4}>Empleados</Typography.Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nuevo Empleado</Button>
+        <Space>
+          <Button icon={<FilePdfOutlined />} onClick={() => {
+            const rows = data?.results || data || []
+            generatePdfReport({
+              title: 'Lista de Empleados',
+              columns: [
+                { header: 'CI', dataKey: 'ci' },
+                { header: 'Nombre', dataKey: 'full_name' },
+                { header: 'Usuario', dataKey: 'username_display' },
+                { header: 'Cargo', dataKey: 'position' },
+                { header: 'Teléfono', dataKey: 'phone' },
+              ],
+              rows,
+              userName: user?.username,
+            })
+          }}>Reporte PDF</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true) }}>Nuevo Empleado</Button>
+        </Space>
       </div>
       <Table dataSource={data?.results || data || []} columns={columns} rowKey="id" loading={isLoading} />
       <Modal
