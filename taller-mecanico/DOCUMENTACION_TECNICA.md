@@ -17,6 +17,7 @@ Sistema de gestión integral para taller mecánico (GT Automotriz). Permite admi
 | UI | Ant Design | 5.x |
 | Estado / Datos | TanStack Query (React Query) | 5.x |
 | HTTP Client | Axios (con interceptor de refresh) | — |
+| PDF | jspdf + jspdf-autotable | 4.x / 5.x |
 | Base de Datos | PostgreSQL 15 (producción) / SQLite (local) | — |
 | Infraestructura | Docker Compose (db + backend + frontend) | — |
 | Locale | es-mx, Zona horaria: America/Mexico_City | — |
@@ -76,6 +77,8 @@ taller-mecanico/
 │   ├── manage.py
 │   ├── requirements.txt
 │   ├── seed_data.py
+│   ├── setup.py          # Wait for DB → migrate → seed (idempotente, usado por Docker)
+│   ├── wait_for_db.py    # Utilidad standalone para esperar PostgreSQL
 │   ├── config/
 │   │   ├── settings.py
 │   │   ├── urls.py
@@ -120,6 +123,8 @@ taller-mecanico/
         │   ├── SuppliersPage.tsx
         │   ├── PurchaseOrdersPage.tsx
         │   └── InvoicesPage.tsx
+        ├── utils/
+        │   └── pdfReport.ts   # Generación de PDF con logo, membrete y tabla
         └── services/
             └── api.ts
 ```
@@ -194,8 +199,9 @@ taller-mecanico/
 | name | CharField(200) | |
 | description | TextField | |
 | estimated_time_minutes | IntegerField | default=60 |
-| price | Decimal(10,2) | null, default/base |
 | is_active | BooleanField | |
+
+> El precio se define por tipo de vehículo en `ServiceVehiclePrice` (5.7). El campo `price` del modelo Service fue eliminado.
 
 ### 5.7 service_catalog.ServiceVehiclePrice
 
@@ -667,7 +673,52 @@ class WorkOrderViewSet(ModelViewSet):
 - Auto-crea el registro si no existe al hacer GET
 - 20+ campos para checklist visual: exterior (abolladuras, rayones, óxido, etc.), interior (asientos, olores), llantas, kilometraje, nivel combustible, documentos
 
-### 9.5 Conversión Moneda (Decimal → String)
+### 9.5 Generación de Reportes PDF
+
+Se utiliza `jspdf` + `jspdf-autotable` para generar reportes desde el frontend:
+
+```tsx
+// frontend/src/utils/pdfReport.ts
+export async function generatePdfReport(opts: PdfReportOptions) {
+  const doc = new jsPDF()
+  const logo = await loadLogoBase64()   // fetch → blob → base64
+
+  // Logo (35×28) en esquina superior izquierda
+  doc.addImage(logo, 'PNG', margin, y, 35, 28)
+
+  // Membrete corporativo (4 líneas)
+  COMPANY.address.forEach(line => doc.text(line, margin, y))
+
+  // Título centrado en rojo
+  doc.text(opts.title, pageWidth / 2, y, { align: 'center' })
+
+  // Metadatos: usuario, fecha, hora
+  doc.text(meta, margin, y)
+
+  // Tabla con autoTable (cabecera roja, filas alternadas)
+  autoTable(doc, { head, body, startY: y })
+
+  // Footer con copyright + número de página
+  doc.save(`${opts.title}.pdf`)
+}
+```
+
+- **Logo:** Se carga desde `public/gt_logo.png` vía `fetch()` y se convierte a base64
+- **Empresa:** Configurada en constante `COMPANY` (nombre, dirección, footer)
+- **Botón en cada página:** Cada list page importa `useAuth` + `generatePdfReport` y agrega un botón `<FilePdfOutlined>` en el header
+- **Uso en 11 páginas:** Dashboard, Clientes, Vehículos, Empleados, Servicios, Órdenes, Citas, Productos, Proveedores, Compras, Facturación
+
+### 9.6 Columna "Nro" Correlativa
+
+Cada tabla Ant Design incluye como primera columna:
+
+```tsx
+{ title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 }
+```
+
+Renderiza el índice dentro de la página (no relacionado con el ID de la BD).
+
+### 9.7 Conversión Moneda (Decimal → String)
 
 Los campos `DecimalField` de Django REST se serializan como string por defecto. Para evitar errores en el frontend (`.toFixed()` no funciona en strings), se usa `coerce_to_string=False` en los serializers que lo requieren, y en el frontend todos los renders aplican `Number(v || 0)` antes de formatear.
 
@@ -704,6 +755,18 @@ docker-compose up --build
 - **Backend** en `localhost:8000`
 - **Frontend** en `localhost:5173` (proxy `/api` → `http://backend:8000`)
 
+#### Flujo de Inicio (Docker)
+
+1. `db` inicia PostgreSQL con healthcheck (`pg_isready`)
+2. `backend` espera a que `db` esté healthy (`condition: service_healthy`)
+3. `backend` ejecuta `python setup.py` que:
+   - Espera conexión a PostgreSQL (máx. 30 intentos)
+   - Corre `migrate`
+   - Verifica si ya hay seed (consulta `SELECT 1 FROM accounts_user`)
+   - Si no hay seed, ejecuta `seed_data.py`
+4. `backend` inicia `runserver 0.0.0.0:8000`
+5. `frontend` inicia Vite dev server en modo polling (`usePolling: true`)
+
 ### 10.3 Variables de Entorno
 
 | Variable | Default | Descripción |
@@ -739,12 +802,15 @@ Ejecutar con: `Get-Content seed_data.py | python manage.py shell`
 
 ```yaml
 services:
-  db:       # PostgreSQL 15, puerto 5432
-  backend:  # Django en puerto 8000, migra al iniciar
-  frontend: # Vite dev server en puerto 5173
+  db:       # PostgreSQL 15, puerto 5432, healthcheck: pg_isready
+  backend:  # Django en puerto 8000, command: python setup.py && python manage.py runserver 0.0.0.0:8000
+  frontend: # Vite dev server en puerto 5173, server.watch.usePolling: true
 ```
 
-El volumen `pgdata` persiste los datos de PostgreSQL. Los volúmenes bind de backend y frontend permiten hot-reload en desarrollo.
+- `pgdata` persiste PostgreSQL
+- Volúmenes bind (`./backend:/app`, `./frontend:/app`) permiten hot-reload
+- `node_modules` se preserva con volumen anónimo (`/app/node_modules`)
+- La caché de Vite (`node_modules/.vite`) debe limpiarse si no detecta cambios: `docker exec taller-mecanico-frontend-1 sh -c "rm -rf /app/node_modules/.vite" && docker-compose restart frontend`
 
 ---
 
@@ -755,4 +821,7 @@ El volumen `pgdata` persiste los datos de PostgreSQL. Los volúmenes bind de bac
 - **Precios:** se muestran como `Bs. ` (Bolivianos) en el frontend
 - **Módulos (apps) de Django:** 11 apps modulares bajo `backend/apps/`
 - **Frontend:** Cada página es un componente autónomo con hooks de TanStack Query
+- **PDF:** Utilidad centralizada en `src/utils/pdfReport.ts`; todas las list pages lo importan
+- **Nro columna:** Siempre primera columna de toda tabla Ant Design, renderiza índice + 1
+- **Vite + Docker:** `server.watch.usePolling: true` en `vite.config.ts` para detectar cambios en volúmenes montados
 - **Configuración de agente:** Ver `AGENTS.md` para instrucciones de desarrollo asistido
