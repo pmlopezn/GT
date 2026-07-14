@@ -90,6 +90,7 @@ export default function ProductsPage() {
       <Modal
         title={editing ? 'Editar Producto' : 'Nuevo Producto'}
         open={open}
+        maskClosable={false}
         onCancel={() => { setOpen(false); setEditing(null) }}
         onOk={() => form.submit()}
         okText="Guardar"

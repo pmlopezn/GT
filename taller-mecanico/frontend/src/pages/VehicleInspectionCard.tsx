@@ -1,6 +1,9 @@
 import { Card, Form, Input, InputNumber, Select, Checkbox, Button, Space, Typography, Spin, message, Row, Col, Divider } from 'antd'
+import { PrinterOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
+import { generateInspectionPdf } from '../utils/inspectionPdf'
 
 interface Props {
   workOrderId: number
@@ -9,10 +12,16 @@ interface Props {
 export default function VehicleInspectionCard({ workOrderId }: Props) {
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   const { data: inspection, isLoading } = useQuery({
     queryKey: ['inspection', workOrderId],
     queryFn: () => api.get(`/work-orders/${workOrderId}/inspection/`).then(r => r.data),
+  })
+
+  const { data: workOrder } = useQuery({
+    queryKey: ['work-order-detail', workOrderId],
+    queryFn: () => api.get(`/work-orders/${workOrderId}/`).then(r => r.data),
   })
 
   const { data: employees } = useQuery({
@@ -20,20 +29,43 @@ export default function VehicleInspectionCard({ workOrderId }: Props) {
     queryFn: () => api.get('/employees/', { params: { is_active: true } }).then(r => r.data?.results || r.data),
   })
 
+  const { data: vehicles } = useQuery({
+    queryKey: ['vehicle-print'],
+    queryFn: () => api.get('/vehicles/', { params: { page_size: 500 } }).then(r => r.data?.results || r.data),
+  })
+
   const saveMutation = useMutation({
     mutationFn: (values: any) => api.patch(`/work-orders/${workOrderId}/inspection/`, values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inspection', workOrderId] })
-      queryClient.invalidateQueries({ queryKey: ['work-order', workOrderId] })
+      queryClient.invalidateQueries({ queryKey: ['work-order-detail', workOrderId] })
       message.success('Inspección guardada')
     },
     onError: () => message.error('Error al guardar inspección'),
   })
 
+  const vehicle = workOrder?.vehicle_id
+    ? (Array.isArray(vehicles) ? vehicles : []).find((v: any) => v.id === workOrder.vehicle_id)
+    : null
+
+  const handlePrint = async () => {
+    await generateInspectionPdf({
+      workOrder,
+      inspection,
+      vehicle,
+      employees: Array.isArray(employees) ? employees : [],
+      userName: user?.username || user?.first_name || '—',
+    })
+  }
+
   if (isLoading) return <Spin style={{ display: 'block', margin: 24 }} />
 
   return (
-    <Card title="Inspección de Recepción" style={{ marginTop: 16 }}>
+    <Card
+      title="Inspección de Recepción"
+      style={{ marginTop: 16 }}
+      extra={<Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint}>Imprimir</Button>}
+    >
       <Form
         form={form}
         layout="vertical"
@@ -43,8 +75,18 @@ export default function VehicleInspectionCard({ workOrderId }: Props) {
         <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>Datos Generales</Typography.Text>
         <Row gutter={16}>
           <Col span={6}>
-            <Form.Item name="mileage_in" label="Kilometraje">
-              <InputNumber min={0} style={{ width: '100%' }} placeholder="km" />
+            <Form.Item label="Kilometraje" style={{ marginBottom: 0 }}>
+              <Space.Compact style={{ width: '100%' }}>
+                <Form.Item name="mileage_in" style={{ marginBottom: 0, width: '70%' }}>
+                  <InputNumber min={0} style={{ width: '100%' }} placeholder="0" />
+                </Form.Item>
+                <Form.Item name="mileage_unit" style={{ marginBottom: 0, width: '30%' }}>
+                  <Select options={[
+                    { value: 'KM', label: 'KM' },
+                    { value: 'Millas', label: 'Millas' },
+                  ]} />
+                </Form.Item>
+              </Space.Compact>
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -58,8 +100,11 @@ export default function VehicleInspectionCard({ workOrderId }: Props) {
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item name="inspected_by" label="Inspeccionado por">
-              <Select allowClear options={(Array.isArray(employees) ? employees : []).map((e: any) => ({ value: e.id, label: e.full_name }))} />
+            <Form.Item name="inspected_by" label="Enc. de Recepción">
+              <Select
+                disabled
+                options={(Array.isArray(employees) ? employees : []).map((e: any) => ({ value: e.id, label: e.full_name }))}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -69,7 +114,7 @@ export default function VehicleInspectionCard({ workOrderId }: Props) {
         <Row gutter={16}>
           <Col span={8}><Form.Item name="has_dents" valuePropName="checked"><Checkbox>Abolladuras</Checkbox></Form.Item></Col>
           <Col span={8}><Form.Item name="has_scratches" valuePropName="checked"><Checkbox>Rayones</Checkbox></Form.Item></Col>
-          <Col span={8}><Form.Item name="has_rust" valuePropName="checked"><Checkbox>Oxido/Corrosión</Checkbox></Form.Item></Col>
+          <Col span={8}><Form.Item name="has_rust" valuePropName="checked"><Checkbox>Óxido / Corrosión</Checkbox></Form.Item></Col>
           <Col span={8}><Form.Item name="has_paint_damage" valuePropName="checked"><Checkbox>Daño en Pintura</Checkbox></Form.Item></Col>
           <Col span={8}><Form.Item name="has_cracked_glass" valuePropName="checked"><Checkbox>Vidrios Rotos</Checkbox></Form.Item></Col>
           <Col span={8}><Form.Item name="has_missing_parts" valuePropName="checked"><Checkbox>Faltan Piezas</Checkbox></Form.Item></Col>

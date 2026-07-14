@@ -32,7 +32,6 @@ export default function DashboardPage() {
   }
 
   const columns = [
-    { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'OT #', dataIndex: 'id', key: 'id', width: 80 },
     { title: 'Cliente', dataIndex: 'customer', key: 'customer' },
     { title: 'Vehículo', dataIndex: 'vehicle', key: 'vehicle' },
@@ -124,7 +123,7 @@ export default function DashboardPage() {
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={data?.orders_by_status || []}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="status" />
+                <XAxis dataKey="status" tickFormatter={(v: string) => statusLabels[v]?.label || v} />
                 <YAxis />
                 <Tooltip />
                 <Bar dataKey="count" fill="#1677ff" radius={[4, 4, 0, 0]} />
@@ -154,7 +153,7 @@ export default function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" />
                   <YAxis type="category" dataKey="name" width={150} />
-                  <Tooltip />
+                <Tooltip formatter={(value: number, name: string, props: any) => [value, `Órdenes ${statusLabels[props.payload?.status]?.label || props.payload?.status}`]} />
                   <Bar dataKey="count" fill="#52c41a" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>

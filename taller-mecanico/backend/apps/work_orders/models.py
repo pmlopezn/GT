@@ -33,6 +33,7 @@ class VehicleInspection(models.Model):
     jack_present = models.BooleanField(default=True)
 
     mileage_in = models.IntegerField(null=True, blank=True)
+    mileage_unit = models.CharField(max_length=10, blank=True, default='KM')
     fuel_level = models.CharField(max_length=20, blank=True)
 
     documents_ok = models.BooleanField(default=True)

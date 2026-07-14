@@ -6,6 +6,8 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import CustomersPage from './pages/CustomersPage'
 import VehiclesPage from './pages/VehiclesPage'
+import ReceptionPage from './pages/ReceptionPage'
+import ReceptionDetailPage from './pages/ReceptionDetailPage'
 import WorkOrdersPage from './pages/WorkOrdersPage'
 import WorkOrderFormPage from './pages/WorkOrderFormPage'
 import AppointmentsPage from './pages/AppointmentsPage'
@@ -37,6 +39,8 @@ function AppRoutes() {
         <Route index element={<DashboardPage />} />
         <Route path="customers" element={<CustomersPage />} />
         <Route path="vehicles" element={<VehiclesPage />} />
+        <Route path="reception" element={<ReceptionPage />} />
+        <Route path="reception/:id" element={<ReceptionDetailPage />} />
         <Route path="work-orders" element={<WorkOrdersPage />} />
         <Route path="work-orders/new" element={<WorkOrderFormPage />} />
         <Route path="work-orders/:id" element={<WorkOrderFormPage />} />

@@ -1,13 +1,15 @@
 import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-  Card, Form, Input, Select, InputNumber, Button, Space, Typography, message, Spin, Divider,
-  Table,
+  Card, Form, Select, InputNumber, Button, Space, Typography, message, Spin, Divider,
+  Table, Tag,
 } from 'antd'
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
+import { PlusOutlined, DeleteOutlined, PrinterOutlined, CheckCircleOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
-import VehicleInspectionCard from './VehicleInspectionCard'
+import { generateWorkOrderPdf } from '../utils/workOrderPdf'
+
 import { useState } from 'react'
 
 const vehicleTypes = [
@@ -19,15 +21,33 @@ const vehicleTypes = [
   { value: 'micro', label: 'Micro' },
 ]
 
+const statusLabels: Record<string, { color: string; label: string }> = {
+  pending: { color: 'orange', label: 'Pendiente' },
+  in_progress: { color: 'blue', label: 'En Progreso' },
+  completed: { color: 'green', label: 'Completado' },
+  invoiced: { color: 'purple', label: 'Facturado' },
+  cancelled: { color: 'red', label: 'Cancelado' },
+}
+
 export default function WorkOrderFormPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
+  const { user } = useAuth()
   const isEdit = Boolean(id)
+  const role = user?.role
+  const isMechanic = role === 'mechanic'
   const [vehicleType, setVehicleType] = useState<string | null>(null)
   const [servicesRows, setServicesRows] = useState<any[]>([])
   const [productsRows, setProductsRows] = useState<any[]>([])
+
+  useEffect(() => {
+    if (!isEdit && isMechanic) {
+      message.warning('No tienes permisos para crear órdenes')
+      navigate('/work-orders')
+    }
+  }, [isEdit, isMechanic, navigate])
 
   const { data: order, isLoading: loadingOrder } = useQuery({
     queryKey: ['work-order', id],
@@ -38,16 +58,19 @@ export default function WorkOrderFormPage() {
   const { data: customers } = useQuery({
     queryKey: ['customers-select'],
     queryFn: () => api.get('/customers/', { params: { page_size: 200 } }).then(r => r.data?.results || r.data),
+    enabled: !isMechanic,
   })
 
   const { data: vehicles } = useQuery({
     queryKey: ['vehicles-select'],
     queryFn: () => api.get('/vehicles/', { params: { page_size: 200 } }).then(r => r.data?.results || r.data),
+    enabled: !isMechanic,
   })
 
   const { data: employees } = useQuery({
     queryKey: ['employees-select'],
     queryFn: () => api.get('/employees/', { params: { is_active: true } }).then(r => r.data?.results || r.data),
+    enabled: !isMechanic,
   })
 
   const { data: services } = useQuery({
@@ -81,6 +104,16 @@ export default function WorkOrderFormPage() {
       message.success('Orden actualizada')
     },
     onError: () => message.error('Error al actualizar'),
+  })
+
+  const statusMutation = useMutation({
+    mutationFn: (status: string) => api.post(`/work-orders/${id}/change_status/`, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['work-orders'] })
+      queryClient.invalidateQueries({ queryKey: ['work-order', id] })
+      message.success('Estado actualizado')
+    },
+    onError: (err: any) => message.error(err?.response?.data?.error || 'Error al actualizar estado'),
   })
 
   useEffect(() => {
@@ -197,6 +230,10 @@ export default function WorkOrderFormPage() {
     }).catch(() => {})
   }
 
+  const handleComplete = () => {
+    statusMutation.mutate('completed')
+  }
+
   const serviceColumns = [
     { title: 'Servicio', dataIndex: 'service', key: 'service', width: 250,
       render: (_: any, __: any, index: number) => (
@@ -293,55 +330,74 @@ export default function WorkOrderFormPage() {
     },
   ]
 
+  const handlePrint = async () => {
+    await generateWorkOrderPdf({ workOrder: order, userName: user?.username || user?.first_name || '—' })
+  }
+
+  if (!isEdit && isMechanic) return null
+
   if (isEdit && loadingOrder) return <Spin style={{ display: 'block', margin: '100px auto' }} />
+
+  const currentStatus = order?.status
 
   return (
     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
       <Typography.Title level={4}>{isEdit ? 'Orden de Trabajo #' + id : 'Nueva Orden de Trabajo'}</Typography.Title>
-      <Card>
+      {currentStatus && (
+        <Tag color={statusLabels[currentStatus]?.color} style={{ marginBottom: 8 }}>
+          {statusLabels[currentStatus]?.label || currentStatus}
+        </Tag>
+      )}
+      <Card
+        extra={
+          <Space>
+            {isEdit && !isMechanic && (
+              <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint}>Imprimir</Button>
+            )}
+          </Space>
+        }
+      >
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
         >
-          <Space style={{ display: 'flex' }} align="start" size={16}>
-            <Form.Item name="customer" label="Cliente" rules={[{ required: true }]} style={{ width: 250 }}>
-              <Select
-                showSearch
-                optionFilterProp="label"
-                options={(Array.isArray(customers) ? customers : []).map((c: any) => ({
-                  value: c.id,
-                  label: `${c.first_name} ${c.last_name}`,
-                }))}
-              />
-            </Form.Item>
-            <Form.Item name="vehicle" label="Vehículo" rules={[{ required: true }]} style={{ width: 250 }}>
-              <Select
-                showSearch
-                optionFilterProp="label"
-                onChange={(val) => setVehicleType(getVehicleType(val))}
-                options={(Array.isArray(vehicles) ? vehicles : []).map((v: any) => ({
-                  value: v.id,
-                  label: `${v.plate} - ${v.brand} ${v.model}`,
-                }))}
-              />
-            </Form.Item>
-            <Form.Item name="assigned_to" label="Mecánico" style={{ width: 200 }}>
-              <Select
-                allowClear
-                options={(Array.isArray(employees) ? employees : []).map((e: any) => ({
-                  value: e.id,
-                  label: e.full_name,
-                }))}
-              />
-            </Form.Item>
-          </Space>
-          <Form.Item name="description" label="Descripción">
-            <Input.TextArea rows={3} />
-          </Form.Item>
-          <Form.Item name="notes" label="Notas">
-            <Input.TextArea rows={2} />
-          </Form.Item>
+          {!isMechanic && (
+            <Space style={{ display: 'flex' }} align="start" size={16}>
+              <Form.Item name="customer" label="Cliente" rules={[{ required: true }]} style={{ width: 250 }}>
+                <Select
+                  disabled
+                  showSearch
+                  optionFilterProp="label"
+                  options={(Array.isArray(customers) ? customers : []).map((c: any) => ({
+                    value: c.id,
+                    label: `${c.first_name} ${c.last_name}`,
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item name="vehicle" label="Vehículo" rules={[{ required: true }]} style={{ width: 250 }}>
+                <Select
+                  disabled
+                  showSearch
+                  optionFilterProp="label"
+                  onChange={(val) => setVehicleType(getVehicleType(val))}
+                  options={(Array.isArray(vehicles) ? vehicles : []).map((v: any) => ({
+                    value: v.id,
+                    label: `${v.plate} - ${v.brand} ${v.model}`,
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item name="assigned_to" label="Enc. de Recepción" style={{ width: 200 }}>
+                <Select
+                  disabled
+                  options={(Array.isArray(employees) ? employees : []).map((e: any) => ({
+                    value: e.id,
+                    label: e.full_name,
+                  }))}
+                />
+              </Form.Item>
+            </Space>
+          )}
 
           <Divider orientation="left">Servicios</Divider>
           {vehicleType && (
@@ -381,11 +437,21 @@ export default function WorkOrderFormPage() {
             <Button type="primary" htmlType="submit" loading={createMutation.isPending || updateMutation.isPending}>
               {isEdit ? 'Actualizar' : 'Crear Orden'}
             </Button>
+            {isEdit && isMechanic && currentStatus === 'in_progress' && (
+              <Button
+                type="primary"
+                icon={<CheckCircleOutlined />}
+                loading={statusMutation.isPending}
+                onClick={handleComplete}
+                style={{ background: '#52c41a', borderColor: '#52c41a' }}
+              >
+                Completar Orden
+              </Button>
+            )}
             <Button onClick={() => navigate('/work-orders')}>Cancelar</Button>
           </Space>
         </Form>
       </Card>
-      {isEdit && id && <VehicleInspectionCard workOrderId={Number(id)} />}
     </div>
   )
 }

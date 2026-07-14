@@ -28,23 +28,23 @@ Sistema de gestión integral para taller mecánico (GT Automotriz). Permite admi
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│                    Frontend (Vite)                    │
-│            React + TypeScript + Ant Design            │
+│                    Frontend (Vite)                   │
+│            React + TypeScript + Ant Design           │
 │                                                      │
-│  ┌──────────┐  ┌──────────┐  ┌───────────────────┐  │
+│  ┌──────────┐  ┌──────────┐  ┌────────────────────┐  │
 │  │  Pages   │  │ Contexts │  │  services/api.ts   │  │
 │  │ (13 pág) │  │  (Auth)  │  │  (Axios + refresh) │  │
-│  └──────────┘  └──────────┘  └────────┬──────────┘  │
+│  └──────────┘  └──────────┘  └────────┬───────────┘  │
 │                                       │              │
 └───────────────────────────────────────┼──────────────┘
                                         │ Proxy /api
                                         │ (Vite: localhost:5173 → localhost:8000)
                                         │ (Docker: localhost:5173 → backend:8000)
                                         ▼
-┌──────────────────────────────────────────────────────┐
-│              Backend (Django REST)                    │
-│   11 apps modulares bajo backend/apps/                │
-│                                                      │
+┌─────────────────────────────────────────────────────┐
+│              Backend (Django REST)                  │
+│   11 apps modulares bajo backend/apps/              │
+│                                                     │
 │  ┌────────┐ ┌─────────┐ ┌──────────┐ ┌──────────┐   │
 │  │accounts│ │customers│ │employees │ │service_  │   │
 │  │ (auth) │ │ (C, V)  │ │  (E)     │ │ catalog  │   │
@@ -56,7 +56,7 @@ Sistema de gestión integral para taller mecánico (GT Automotriz). Permite admi
 │  ┌──────────┐ ┌───────┐ ┌─────────┐                 │
 │  │purchasing│ │billing│ │dashboard│                 │
 │  └──────────┘ └───────┘ └─────────┘                 │
-└──────────────────────┬───────────────────────────────┘
+└──────────────────────┬──────────────────────────────┘
                        │
           ┌────────────┴────────────┐
           │  PostgreSQL / SQLite    │

@@ -99,6 +99,7 @@ export default function PurchaseOrdersPage() {
       <Modal
         title="Nueva Orden de Compra"
         open={open}
+        maskClosable={false}
         onCancel={() => setOpen(false)}
         onOk={() => form.submit()}
         okText="Guardar"

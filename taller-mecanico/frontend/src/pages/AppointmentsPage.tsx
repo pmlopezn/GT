@@ -107,6 +107,7 @@ export default function AppointmentsPage() {
       <Modal
         title={editing ? 'Editar Cita' : 'Nueva Cita'}
         open={open}
+        maskClosable={false}
         onCancel={() => { setOpen(false); setEditing(null) }}
         onOk={() => form.submit()}
         okText="Guardar"

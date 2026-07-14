@@ -122,6 +122,7 @@ export default function VehiclesPage() {
       <Modal
         title={editing ? 'Editar Vehículo' : 'Nuevo Vehículo'}
         open={open}
+        maskClosable={false}
         onCancel={() => { setOpen(false); setEditing(null) }}
         onOk={() => form.submit()}
         okText="Guardar"

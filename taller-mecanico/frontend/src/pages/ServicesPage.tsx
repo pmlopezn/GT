@@ -136,6 +136,7 @@ export default function ServicesPage() {
       <Modal
         title={editing ? 'Editar Servicio' : 'Nuevo Servicio'}
         open={open}
+        maskClosable={false}
         onCancel={() => { setOpen(false); setEditing(null) }}
         onOk={() => form.submit()}
         okText="Guardar"

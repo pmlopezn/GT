@@ -38,12 +38,13 @@ class WorkOrderListSerializer(serializers.ModelSerializer):
     customer_name = serializers.CharField(source="customer.full_name", read_only=True)
     vehicle_info = serializers.SerializerMethodField()
     assigned_to_name = serializers.SerializerMethodField()
+    assigned_to = serializers.IntegerField(source="assigned_to.id", read_only=True, allow_null=True)
     total = serializers.DecimalField(max_digits=12, decimal_places=2, coerce_to_string=False)
 
     class Meta:
         model = WorkOrder
         fields = [
-            "id", "customer_name", "vehicle_info", "assigned_to_name",
+            "id", "customer_name", "vehicle_info", "assigned_to_name", "assigned_to",
             "status", "total", "created_at", "completed_at",
         ]
 
@@ -87,7 +88,7 @@ class WorkOrderCreateSerializer(serializers.ModelSerializer):
             "id", "customer", "vehicle", "assigned_to", "status",
             "description", "notes", "total", "services_data", "products_data",
         ]
-        read_only_fields = ["id"]
+        read_only_fields = ["id", "status"]
 
     def create(self, validated_data):
         services_data = validated_data.pop("services_data", [])

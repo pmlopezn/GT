@@ -103,6 +103,7 @@ export default function InvoicesPage() {
       <Modal
         title="Registrar Pago"
         open={payOpen}
+        maskClosable={false}
         onCancel={() => { setPayOpen(false); setSelectedInvoice(null) }}
         onOk={() => form.submit()}
         okText="Guardar"

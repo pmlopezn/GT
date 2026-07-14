@@ -6,6 +6,7 @@ import {
   UserOutlined,
   CarOutlined,
   ToolOutlined,
+  FormOutlined,
   CalendarOutlined,
   ShoppingCartOutlined,
   TeamOutlined,
@@ -25,6 +26,7 @@ const adminMenu = [
   { key: '/', icon: <DashboardOutlined />, label: 'Dashboard' },
   { key: '/customers', icon: <UserOutlined />, label: 'Clientes' },
   { key: '/vehicles', icon: <CarOutlined />, label: 'Vehículos' },
+  { key: '/reception', icon: <FormOutlined />, label: 'Recepción' },
   { key: '/work-orders', icon: <ToolOutlined />, label: 'Órdenes' },
   { key: '/appointments', icon: <CalendarOutlined />, label: 'Agenda' },
   { key: '/services', icon: <SettingOutlined />, label: 'Servicios' },
@@ -39,6 +41,7 @@ const receptionistMenu = [
   { key: '/', icon: <DashboardOutlined />, label: 'Dashboard' },
   { key: '/customers', icon: <UserOutlined />, label: 'Clientes' },
   { key: '/vehicles', icon: <CarOutlined />, label: 'Vehículos' },
+  { key: '/reception', icon: <FormOutlined />, label: 'Recepción' },
   { key: '/work-orders', icon: <ToolOutlined />, label: 'Órdenes' },
 ]
 

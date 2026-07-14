@@ -81,6 +81,7 @@ export default function SuppliersPage() {
       <Modal
         title={editing ? 'Editar Proveedor' : 'Nuevo Proveedor'}
         open={open}
+        maskClosable={false}
         onCancel={() => { setOpen(false); setEditing(null) }}
         onOk={() => form.submit()}
         okText="Guardar"

@@ -81,6 +81,7 @@ export default function CustomersPage() {
       <Modal
         title={editing ? 'Editar Cliente' : 'Nuevo Cliente'}
         open={open}
+        maskClosable={false}
         onCancel={() => { setOpen(false); setEditing(null) }}
         onOk={() => form.submit()}
         okText="Guardar"

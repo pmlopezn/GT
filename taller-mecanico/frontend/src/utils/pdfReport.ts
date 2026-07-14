@@ -13,8 +13,7 @@ const COMPANY = {
   name: 'GT Automotriz',
   address: [
     'Dirección: Av. La Banda s/n a 1 cuadra de la UPDS -  Barrio German Bush',
-    'Correo: huguitogareca32@gmail.com',
-    'Cel: 72983151',
+    'Correo: huguitogareca32@gmail.com / Cel: 72983151',
     'Tarija - Bolivia',
   ],
   footer: `GT Automotriz © ${new Date().getFullYear()} — Todos los derechos reservados`,
@@ -53,17 +52,10 @@ export async function generatePdfReport(opts: PdfReportOptions) {
 
   if (logo) {
     doc.addImage(logo, 'PNG', margin, y, 35, 28)
+    y += 33
+  } else {
+    y += 5
   }
-  y = margin + 33
-
-  doc.setFontSize(9)
-  doc.setFont('helvetica', 'normal')
-  doc.setTextColor(grayColor[0], grayColor[1], grayColor[2])
-  COMPANY.address.forEach((line) => {
-    doc.text(line, margin, y)
-    y += 4.5
-  })
-  y += 3
 
   doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2])
   doc.setLineWidth(0.8)
@@ -141,24 +133,14 @@ export async function generatePdfReport(opts: PdfReportOptions) {
         doc.setFontSize(7)
         doc.setFont('helvetica', 'normal')
         doc.setTextColor(grayColor[0], grayColor[1], grayColor[2])
-        doc.text(COMPANY.footer, pageWidth / 2, footerY + 2, { align: 'center' })
+        COMPANY.address.forEach((line, idx) => {
+          doc.text(line, pageWidth / 2, footerY + 2 + idx * 3.5, { align: 'center' })
+        })
+        doc.text(COMPANY.footer, pageWidth / 2, footerY + 2 + COMPANY.address.length * 3.5 + 3, { align: 'center' })
         doc.text(`Página ${i} de ${pageCount}`, pageWidth - margin, footerY + 2, { align: 'right' })
       }
     },
   })
-
-  const finalY = (doc as any).lastAutoTable?.finalY || y
-  doc.setPage(1)
-  const footerY = doc.internal.pageSize.getHeight() - 10
-  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2])
-  doc.setLineWidth(0.5)
-  doc.line(margin, footerY - 2, pageWidth - margin, footerY - 2)
-  doc.setFontSize(7)
-  doc.setFont('helvetica', 'normal')
-  doc.setTextColor(grayColor[0], grayColor[1], grayColor[2])
-  doc.text(COMPANY.footer, pageWidth / 2, footerY + 2, { align: 'center' })
-  const pageCount = doc.getNumberOfPages()
-  doc.text(`Página 1 de ${pageCount}`, pageWidth - margin, footerY + 2, { align: 'right' })
 
   doc.save(`${opts.title}.pdf`)
 }
