@@ -185,12 +185,39 @@ export async function generateInspectionPdf(data: InspectionPdfData) {
     y += 2
   }
 
+  // Luces
+  drawSection('LUCES', [
+    ['Luz media - Izq.', yesNo(insp.light_medium_left_ok), 'Luz media - Der.', yesNo(insp.light_medium_right_ok)],
+    ['Luz baja - Izq.', yesNo(insp.light_low_left_ok), 'Luz baja - Der.', yesNo(insp.light_low_right_ok)],
+    ['Luz alta - Izq.', yesNo(insp.light_high_left_ok), 'Luz alta - Der.', yesNo(insp.light_high_right_ok)],
+    ['Giro - Izq.', yesNo(insp.light_turn_left_ok), 'Giro - Der.', yesNo(insp.light_turn_right_ok)],
+    ['Luz placa - Adelante', yesNo(insp.light_plate_front_ok), 'Luz placa - Atrás', yesNo(insp.light_plate_rear_ok)],
+  ], [])
+
+  y += 6
+  // Vidrios
+  drawSection('VIDRIOS', [
+    ['Parabrisas del.', yesNo(insp.glass_windshield_ok), 'Trasero', yesNo(insp.glass_rear_ok)],
+    ['Pta. del. Izq.', yesNo(insp.glass_left_front_ok), 'Pta. del. Der.', yesNo(insp.glass_right_front_ok)],
+    ['Pta. tras. Izq.', yesNo(insp.glass_left_rear_ok), 'Pta. tras. Der.', yesNo(insp.glass_right_rear_ok)],
+    ['Ventilete tras. Izq.', yesNo(insp.glass_left_quarter_ok), 'Ventilete tras. Der.', yesNo(insp.glass_right_quarter_ok)],
+  ], [])
+
+  y += 6
   // Exterior
   drawSection('EXTERIOR', [
-    ['Abolladuras', yesNo(insp.has_dents), 'Rayones', yesNo(insp.has_scratches)],
-    ['Óxido / Corrosión', yesNo(insp.has_rust), 'Daño en Pintura', yesNo(insp.has_paint_damage)],
-    ['Vidrios Rotos', yesNo(insp.has_cracked_glass), 'Faltan Piezas', yesNo(insp.has_missing_parts)],
-  ], [])
+    ['Antena de radio', yesNo(insp.exterior_antenna_ok), 'Tapa gasolina', yesNo(insp.exterior_gas_cap_ok)],
+    ['Espejo lat. Izq.', yesNo(insp.exterior_mirror_left_ok), 'Espejo lat. Der.', yesNo(insp.exterior_mirror_right_ok)],
+    ['Limp. del. Izq.', yesNo(insp.exterior_wiper_front_left_ok), 'Limp. del. Der.', yesNo(insp.exterior_wiper_front_right_ok)],
+    ['Limp. trasero', yesNo(insp.exterior_wiper_rear_ok), '', ''],
+    ['Tapón rueda I-D', yesNo(insp.exterior_wheel_cap_left_front_ok), 'Tapón rueda I-T', yesNo(insp.exterior_wheel_cap_left_rear_ok)],
+    ['Tapón rueda D-D', yesNo(insp.exterior_wheel_cap_right_front_ok), 'Tapón rueda D-T', yesNo(insp.exterior_wheel_cap_right_rear_ok)],
+    ['Placa adelante', yesNo(insp.exterior_plate_front_ok), 'Placa atrás', yesNo(insp.exterior_plate_rear_ok)],
+    ['Parachoque del.', yesNo(insp.exterior_bumper_front_ok), 'Parachoque tras.', yesNo(insp.exterior_bumper_rear_ok)],
+  ], [
+    { label: 'Abolladuras', value: insp.exterior_dents_detail },
+    { label: 'Rayones', value: insp.exterior_scratches_detail },
+  ])
 
   y += 6
   // Interior

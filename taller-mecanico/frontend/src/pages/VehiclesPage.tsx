@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { Table, Button, Modal, Form, Input, Select, Space, Typography, message, Popconfirm } from 'antd'
+import { Table, Button, Modal, Form, Input, Select, Space, Typography, message, Popconfirm, Row, Col } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { generatePdfReport } from '../utils/pdfReport'
 
-const vehicleTypes = [
+const baseVehicleTypes = [
   { value: 'automovil', label: 'Automóvil' },
   { value: 'vagoneta', label: 'Vagoneta' },
   { value: 'camioneta', label: 'Camioneta' },
@@ -15,13 +15,27 @@ const vehicleTypes = [
   { value: 'micro', label: 'Micro' },
 ]
 
-const brandOptions = [
+const formatType = (v: string) =>
+  baseVehicleTypes.find(t => t.value === v)?.label || v.charAt(0).toUpperCase() + v.slice(1).replace(/_/g, ' ')
+
+const baseBrands = [
   'Toyota', 'Nissan', 'Suzuki', 'Honda', 'Chevrolet', 'Ford',
   'Volkswagen', 'BMW', 'Mercedes-Benz', 'Hyundai', 'Kia',
   'Mazda', 'Mitsubishi', 'Renault', 'Peugeot', 'Fiat',
   'Jeep', 'Dodge', 'Subaru', 'Volvo', 'Audi', 'Lexus',
-  'Jaguar', 'Land Rover', 'Mini', 'Porsche', 'Otro',
+  'Jaguar', 'Land Rover', 'Mini', 'Porsche',
+  'Acura', 'Alfa Romeo', 'Aston Martin', 'Bentley', 'Buick',
+  'Cadillac', 'Chery', 'Chrysler', 'Citroën', 'Dacia',
+  'Daewoo', 'Daihatsu', 'Ferrari', 'GAC', 'Geely', 'GMC',
+  'Great Wall', 'Haval', 'Hummer', 'Infiniti', 'Isuzu',
+  'Iveco', 'JAC', 'Lamborghini', 'Lancia', 'Lincoln',
+  'Lotus', 'Maserati', 'McLaren', 'MG', 'Morris', 'Opel',
+  'Rolls-Royce', 'Saab', 'SEAT', 'Škoda', 'Smart',
+  'SsangYong', 'Tesla', 'Vauxhall',
 ]
+
+const formatBrand = (v: string) =>
+  v.charAt(0).toUpperCase() + v.slice(1).replace(/_/g, ' ')
 
 const yearOptions = Array.from({ length: 2026 - 1970 + 1 }, (_, i) => {
   const y = 1970 + i
@@ -64,8 +78,8 @@ export default function VehiclesPage() {
   const columns = [
     { title: 'Nro', key: 'nro', width: 60, render: (_: any, __: any, i: number) => i + 1 },
     { title: 'Placa', dataIndex: 'plate', key: 'plate' },
-    { title: 'Tipo', dataIndex: 'vehicle_type', key: 'vehicle_type', render: (v: string) => vehicleTypes.find(t => t.value === v)?.label || v },
-    { title: 'Marca', dataIndex: 'brand', key: 'brand', render: (v: string) => v.charAt(0).toUpperCase() + v.slice(1).replace('_', ' ') },
+    { title: 'Tipo', dataIndex: 'vehicle_type', key: 'vehicle_type', render: (v: string) => formatType(v) },
+    { title: 'Marca', dataIndex: 'brand', key: 'brand', render: (v: string) => formatBrand(v) },
     { title: 'Modelo', dataIndex: 'model', key: 'model' },
     { title: 'Año', dataIndex: 'year', key: 'year' },
     { title: 'Color', dataIndex: 'color', key: 'color' },
@@ -77,7 +91,15 @@ export default function VehiclesPage() {
       title: 'Acciones', key: 'actions', width: 120,
       render: (_: any, record: any) => (
         <Space>
-          <Button icon={<EditOutlined />} size="small" onClick={() => { setEditing(record); form.setFieldsValue(record); setOpen(true) }} />
+          <Button icon={<EditOutlined />} size="small" onClick={() => {
+            setEditing(record)
+            form.setFieldsValue({
+              ...record,
+              brand: record.brand ? [record.brand] : undefined,
+              vehicle_type: record.vehicle_type ? [record.vehicle_type] : undefined,
+            })
+            setOpen(true)
+          }} />
           <Popconfirm title="¿Eliminar?" onConfirm={() => deleteMutation.mutate(record.id)}>
             <Button icon={<DeleteOutlined />} size="small" danger />
           </Popconfirm>
@@ -107,7 +129,7 @@ export default function VehiclesPage() {
               ],
               rows: rows.map((r: any) => ({
                 ...r,
-                _type: vehicleTypes.find(t => t.value === r.vehicle_type)?.label || r.vehicle_type,
+                _type: formatType(r.vehicle_type),
                 _customer: (Array.isArray(customers) ? customers : []).find((c: any) => c.id === r.customer)
                   ? `${((Array.isArray(customers) ? customers : []).find((c: any) => c.id === r.customer) as any).first_name} ${((Array.isArray(customers) ? customers : []).find((c: any) => c.id === r.customer) as any).last_name}`
                   : r.customer,
@@ -128,7 +150,14 @@ export default function VehiclesPage() {
         okText="Guardar"
         cancelText="Cancelar"
       >
-        <Form form={form} layout="vertical" onFinish={values => editing ? updateMutation.mutate(values) : createMutation.mutate(values)}>
+        <Form form={form} layout="vertical" onFinish={values => {
+          const payload = {
+            ...values,
+            brand: Array.isArray(values.brand) ? values.brand[0] : values.brand,
+            vehicle_type: Array.isArray(values.vehicle_type) ? values.vehicle_type[0] : values.vehicle_type,
+          }
+          editing ? updateMutation.mutate(payload) : createMutation.mutate(payload)
+        }}>
           <Form.Item name="customer" label="Cliente" rules={[{ required: true }]}>
             <Select
               showSearch
@@ -139,30 +168,68 @@ export default function VehiclesPage() {
               }))}
             />
           </Form.Item>
-          <Form.Item name="plate" label="Placa" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="vehicle_type" label="Tipo" rules={[{ required: true }]}>
-            <Select options={vehicleTypes} />
-          </Form.Item>
-          <Form.Item name="brand" label="Marca" rules={[{ required: true }]}>
-            <Select showSearch optionFilterProp="label" options={brandOptions.map(b => ({ value: b.toLowerCase().replace(/[\s-]/g, '_'), label: b }))} />
-          </Form.Item>
-          <Form.Item name="model" label="Modelo" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="year" label="Año" rules={[{ required: true }]}>
-            <Select showSearch optionFilterProp="label" options={yearOptions} />
-          </Form.Item>
-          <Form.Item name="color" label="Color">
-            <Input />
-          </Form.Item>
-          <Form.Item name="vin" label="VIN">
-            <Input maxLength={17} />
-          </Form.Item>
-          <Form.Item name="notes" label="Notas">
-            <Input.TextArea rows={2} />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="plate" label="Placa" rules={[{ required: true }]}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="vehicle_type" label="Tipo" rules={[{ required: true }]}>
+                <Select
+                  showSearch
+                  mode="tags"
+                  maxCount={1}
+                  optionFilterProp="label"
+                  placeholder="Selecciona o escribe un tipo"
+                  options={[...new Set([
+                    ...baseVehicleTypes.map(t => t.label),
+                    ...(Array.isArray(vehicles?.results || vehicles) ? (vehicles?.results || vehicles).map((v: any) => formatType(v.vehicle_type)) : []),
+                  ])].map(t => ({ value: t.toLowerCase().replace(/[\s-]/g, '_'), label: t }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="brand" label="Marca" rules={[{ required: true }]}>
+                <Select
+                  showSearch
+                  mode="tags"
+                  maxCount={1}
+                  optionFilterProp="label"
+                  placeholder="Selecciona o escribe una marca"
+                  options={[...new Set([
+                    ...baseBrands,
+                    ...(Array.isArray(vehicles?.results || vehicles) ? (vehicles?.results || vehicles).map((v: any) => formatBrand(v.brand)) : []),
+                  ])].map(b => ({ value: b, label: b }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="model" label="Modelo" rules={[{ required: true }]}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="year" label="Año" rules={[{ required: true }]}>
+                <Select showSearch optionFilterProp="label" options={yearOptions} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="color" label="Color">
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="vin" label="VIN">
+                <Input maxLength={17} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="notes" label="Notas">
+                <Input.TextArea rows={2} />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </Modal>
     </div>

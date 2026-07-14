@@ -41,7 +41,7 @@ class ServiceVehiclePrice(models.Model):
     service = models.ForeignKey(
         Service, on_delete=models.CASCADE, related_name="vehicle_prices"
     )
-    vehicle_type = models.CharField(max_length=20, choices=Vehicle.Type.choices)
+    vehicle_type = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
@@ -50,4 +50,4 @@ class ServiceVehiclePrice(models.Model):
         verbose_name_plural = "Precios por tipo de vehículo"
 
     def __str__(self):
-        return f"{self.service.name} - {self.get_vehicle_type_display()}: ${self.price}"
+        return f"{self.service.name} - {self.vehicle_type}: ${self.price}"

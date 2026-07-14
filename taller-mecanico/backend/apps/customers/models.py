@@ -61,6 +61,46 @@ class Vehicle(models.Model):
         LAND_ROVER = "land_rover", "Land Rover"
         MINI = "mini", "Mini"
         PORSCHE = "porsche", "Porsche"
+        ACURA = "acura", "Acura"
+        ALFA_ROMEO = "alfa_romeo", "Alfa Romeo"
+        ASTON_MARTIN = "aston_martin", "Aston Martin"
+        BENTLEY = "bentley", "Bentley"
+        BUICK = "buick", "Buick"
+        CADILLAC = "cadillac", "Cadillac"
+        CHERY = "chery", "Chery"
+        CHRYSLER = "chrysler", "Chrysler"
+        CITROEN = "citroen", "Citroën"
+        DACIA = "dacia", "Dacia"
+        DAEWOO = "daewoo", "Daewoo"
+        DAIHATSU = "daihatsu", "Daihatsu"
+        FERRARI = "ferrari", "Ferrari"
+        GAC = "gac", "GAC"
+        GEELY = "geely", "Geely"
+        GMC = "gmc", "GMC"
+        GREAT_WALL = "great_wall", "Great Wall"
+        HAVAL = "haval", "Haval"
+        HUMMER = "hummer", "Hummer"
+        INFINITI = "infiniti", "Infiniti"
+        ISUZU = "isuzu", "Isuzu"
+        IVECO = "iveco", "Iveco"
+        JAC = "jac", "JAC"
+        LAMBORGHINI = "lamborghini", "Lamborghini"
+        LANCIA = "lancia", "Lancia"
+        LINCOLN = "lincoln", "Lincoln"
+        LOTUS = "lotus", "Lotus"
+        MASERATI = "maserati", "Maserati"
+        MCLAREN = "mclaren", "McLaren"
+        MG = "mg", "MG"
+        MORRIS = "morris", "Morris"
+        OPEL = "opel", "Opel"
+        ROLLS_ROYCE = "rolls_royce", "Rolls-Royce"
+        SAAB = "saab", "Saab"
+        SEAT = "seat", "SEAT"
+        SKODA = "skoda", "Škoda"
+        SMART = "smart", "Smart"
+        SSANGYONG = "ssangyong", "SsangYong"
+        TESLA = "tesla", "Tesla"
+        Vauxhall = "vauxhall", "Vauxhall"
         OTRO = "otro", "Otro"
 
     customer = models.ForeignKey(
@@ -68,9 +108,9 @@ class Vehicle(models.Model):
     )
     plate = models.CharField(max_length=20, unique=True)
     vehicle_type = models.CharField(
-        max_length=20, choices=Type.choices, default=Type.AUTOMOVIL, verbose_name="Tipo"
+        max_length=50, verbose_name="Tipo"
     )
-    brand = models.CharField(max_length=30, choices=Brand.choices)
+    brand = models.CharField(max_length=50)
     model = models.CharField(max_length=50)
     year = models.IntegerField()
     vin = models.CharField(max_length=17, blank=True)

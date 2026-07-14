@@ -1,4 +1,4 @@
-import { Card, Form, Input, InputNumber, Select, Checkbox, Button, Space, Typography, Spin, message, Row, Col, Divider } from 'antd'
+import { Card, Form, Input, InputNumber, Select, Checkbox, Radio, Button, Space, Typography, Spin, message, Row, Col, Divider } from 'antd'
 import { PrinterOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
@@ -110,17 +110,153 @@ export default function VehicleInspectionCard({ workOrderId }: Props) {
         </Row>
 
         <Divider />
-        <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>Exterior</Typography.Text>
-        <Row gutter={16}>
-          <Col span={8}><Form.Item name="has_dents" valuePropName="checked"><Checkbox>Abolladuras</Checkbox></Form.Item></Col>
-          <Col span={8}><Form.Item name="has_scratches" valuePropName="checked"><Checkbox>Rayones</Checkbox></Form.Item></Col>
-          <Col span={8}><Form.Item name="has_rust" valuePropName="checked"><Checkbox>Óxido / Corrosión</Checkbox></Form.Item></Col>
-          <Col span={8}><Form.Item name="has_paint_damage" valuePropName="checked"><Checkbox>Daño en Pintura</Checkbox></Form.Item></Col>
-          <Col span={8}><Form.Item name="has_cracked_glass" valuePropName="checked"><Checkbox>Vidrios Rotos</Checkbox></Form.Item></Col>
-          <Col span={8}><Form.Item name="has_missing_parts" valuePropName="checked"><Checkbox>Faltan Piezas</Checkbox></Form.Item></Col>
+        <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>Luces</Typography.Text>
+        <Row gutter={16} style={{ marginBottom: 4 }}>
+          <Col span={5} />
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Izquierdo</Typography.Text></Col>
+          <Col span={10}><Typography.Text strong style={{ fontSize: 12 }}>Derecho</Typography.Text></Col>
         </Row>
-        <Form.Item name="missing_parts_detail" label="Detalle de piezas faltantes">
-          <Input.TextArea rows={2} placeholder="Describir qué piezas faltan..." />
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={5}><Typography.Text>Luz media</Typography.Text></Col>
+          <Col span={9}><Form.Item name="light_medium_left_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Funciona</Radio><Radio value={false}>No funciona</Radio></Radio.Group></Form.Item></Col>
+          <Col span={10}><Form.Item name="light_medium_right_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Funciona</Radio><Radio value={false}>No funciona</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={5}><Typography.Text>Luz baja</Typography.Text></Col>
+          <Col span={9}><Form.Item name="light_low_left_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Funciona</Radio><Radio value={false}>No funciona</Radio></Radio.Group></Form.Item></Col>
+          <Col span={10}><Form.Item name="light_low_right_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Funciona</Radio><Radio value={false}>No funciona</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={5}><Typography.Text>Luz alta</Typography.Text></Col>
+          <Col span={9}><Form.Item name="light_high_left_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Funciona</Radio><Radio value={false}>No funciona</Radio></Radio.Group></Form.Item></Col>
+          <Col span={10}><Form.Item name="light_high_right_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Funciona</Radio><Radio value={false}>No funciona</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={5}><Typography.Text>Luces de giro</Typography.Text></Col>
+          <Col span={9}><Form.Item name="light_turn_left_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Funciona</Radio><Radio value={false}>No funciona</Radio></Radio.Group></Form.Item></Col>
+          <Col span={10}><Form.Item name="light_turn_right_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Funciona</Radio><Radio value={false}>No funciona</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 4 }}>
+          <Col span={5} />
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Adelante</Typography.Text></Col>
+          <Col span={10}><Typography.Text strong style={{ fontSize: 12 }}>Atrás</Typography.Text></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={5}><Typography.Text>Luces de placa</Typography.Text></Col>
+          <Col span={9}><Form.Item name="light_plate_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Funciona</Radio><Radio value={false}>No funciona</Radio></Radio.Group></Form.Item></Col>
+          <Col span={10}><Form.Item name="light_plate_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Funciona</Radio><Radio value={false}>No funciona</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+
+        <Divider />
+        <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>Vidrios</Typography.Text>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={5}><Typography.Text>Delantero</Typography.Text></Col>
+          <Col span={19}><Form.Item name="glass_windshield_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Dañado</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={5}><Typography.Text>Trasero</Typography.Text></Col>
+          <Col span={19}><Form.Item name="glass_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Dañado</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 4 }}>
+          <Col span={5} />
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Izquierdo</Typography.Text></Col>
+          <Col span={10}><Typography.Text strong style={{ fontSize: 12 }}>Derecho</Typography.Text></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={5}><Typography.Text>Puerta delantera</Typography.Text></Col>
+          <Col span={9}><Form.Item name="glass_left_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Dañado</Radio></Radio.Group></Form.Item></Col>
+          <Col span={10}><Form.Item name="glass_right_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Dañado</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={5}><Typography.Text>Puerta trasera</Typography.Text></Col>
+          <Col span={9}><Form.Item name="glass_left_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Dañado</Radio></Radio.Group></Form.Item></Col>
+          <Col span={10}><Form.Item name="glass_right_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Dañado</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={5}><Typography.Text>Ventilete trasero</Typography.Text></Col>
+          <Col span={9}><Form.Item name="glass_left_quarter_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Dañado</Radio></Radio.Group></Form.Item></Col>
+          <Col span={10}><Form.Item name="glass_right_quarter_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Dañado</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Form.Item name="glass_notes" label="Notas de vidrios">
+          <Input.TextArea rows={2} placeholder="Observaciones..." />
+        </Form.Item>
+
+        <Divider />
+        <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>Exterior</Typography.Text>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={6}><Typography.Text>Antena de radio</Typography.Text></Col>
+          <Col span={18}><Form.Item name="exterior_antenna_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 4 }}>
+          <Col span={6} />
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Izquierdo</Typography.Text></Col>
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Derecho</Typography.Text></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={6}><Typography.Text>Espejos laterales</Typography.Text></Col>
+          <Col span={9}><Form.Item name="exterior_mirror_left_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+          <Col span={9}><Form.Item name="exterior_mirror_right_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Typography.Text strong style={{ display: 'block', margin: '8px 0 4px' }}>Limpiaparabrisas</Typography.Text>
+        <Row gutter={16} style={{ marginBottom: 4 }}>
+          <Col span={6} />
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Izquierdo</Typography.Text></Col>
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Derecho</Typography.Text></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={6}><Typography.Text>Delanteros</Typography.Text></Col>
+          <Col span={9}><Form.Item name="exterior_wiper_front_left_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+          <Col span={9}><Form.Item name="exterior_wiper_front_right_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={6}><Typography.Text>Trasero</Typography.Text></Col>
+          <Col span={18}><Form.Item name="exterior_wiper_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Typography.Text strong style={{ display: 'block', margin: '8px 0 4px' }}>Tapón de rueda</Typography.Text>
+        <Row gutter={16} style={{ marginBottom: 4 }}>
+          <Col span={6} />
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Delantera</Typography.Text></Col>
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Trasera</Typography.Text></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={6}><Typography.Text>Izquierda</Typography.Text></Col>
+          <Col span={9}><Form.Item name="exterior_wheel_cap_left_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+          <Col span={9}><Form.Item name="exterior_wheel_cap_left_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={6}><Typography.Text>Derecha</Typography.Text></Col>
+          <Col span={9}><Form.Item name="exterior_wheel_cap_right_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+          <Col span={9}><Form.Item name="exterior_wheel_cap_right_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={6}><Typography.Text>Tapa de gasolina</Typography.Text></Col>
+          <Col span={18}><Form.Item name="exterior_gas_cap_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 4 }}>
+          <Col span={6} />
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Adelante</Typography.Text></Col>
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Atrás</Typography.Text></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={6}><Typography.Text>Placas</Typography.Text></Col>
+          <Col span={9}><Form.Item name="exterior_plate_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+          <Col span={9}><Form.Item name="exterior_plate_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 4 }}>
+          <Col span={6} />
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Delantero</Typography.Text></Col>
+          <Col span={9}><Typography.Text strong style={{ fontSize: 12 }}>Trasero</Typography.Text></Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+          <Col span={6}><Typography.Text>Parachoque</Typography.Text></Col>
+          <Col span={9}><Form.Item name="exterior_bumper_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+          <Col span={9}><Form.Item name="exterior_bumper_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+        </Row>
+        <Form.Item name="exterior_dents_detail" label="Abolladuras">
+          <Input.TextArea rows={2} placeholder="Describir abolladuras..." />
+        </Form.Item>
+        <Form.Item name="exterior_scratches_detail" label="Rayones">
+          <Input.TextArea rows={2} placeholder="Describir rayones..." />
         </Form.Item>
         <Form.Item name="exterior_notes" label="Notas del exterior">
           <Input.TextArea rows={2} placeholder="Observaciones adicionales..." />
