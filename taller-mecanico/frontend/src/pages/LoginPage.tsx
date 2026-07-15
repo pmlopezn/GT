@@ -1,4 +1,4 @@
-import { Form, Input, Button, Card, Typography, message } from 'antd'
+import { Form, Input, Button, Card, Typography, message, Image } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -34,9 +34,9 @@ export default function LoginPage() {
       background: '#f0f2f5',
     }}>
       <Card style={{ width: 400, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-        <Typography.Title level={3} style={{ textAlign: 'center', marginBottom: 32 }}>
-          GT Automotriz
-        </Typography.Title>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <img src="/gt_logo.png" alt="GT Automotriz" style={{ width: 220, height: 'auto' }} />
+        </div>
         <Typography.Text type="secondary" style={{ display: 'block', textAlign: 'center', marginBottom: 24 }}>
           Inicia sesión para continuar
         </Typography.Text>
