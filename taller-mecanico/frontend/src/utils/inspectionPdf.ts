@@ -167,23 +167,18 @@ export async function generateInspectionPdf(data: InspectionPdfData) {
       didDrawPage: () => drawFooter(doc, pageWidth, margin, primaryColor, grayColor),
     })
 
-    y = (doc as any).lastAutoTable?.finalY + 2
+    y = (doc as any).lastAutoTable?.finalY + 10
 
     noteFields.forEach((nf) => {
-      if (nf.value) {
-        if (y > doc.internal.pageSize.getHeight() - 20) {
-          doc.addPage()
-          y = margin
-        }
-        doc.setFontSize(9)
-        doc.setFont('helvetica', 'bold')
-        doc.setTextColor(60, 60, 60)
-        doc.text(nf.label, margin, y)
-        y += 4
-        doc.setFont('helvetica', 'normal')
-        doc.text(nf.value, margin, y)
-        y += 5
+      if (y > doc.internal.pageSize.getHeight() - 20) {
+        doc.addPage()
+        y = margin
       }
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(60, 60, 60)
+      doc.text(`${nf.label}: ${nf.value || '—'}`, margin, y)
+      y += 5
     })
     y += 2
   }
