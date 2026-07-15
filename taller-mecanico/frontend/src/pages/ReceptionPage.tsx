@@ -306,7 +306,7 @@ export default function ReceptionPage() {
               <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>Exterior</Typography.Text>
               <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
                 <Col span={6}><Typography.Text>Antena de radio</Typography.Text></Col>
-                <Col span={18}><Form.Item name="exterior_antenna_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+                <Col span={18}><Form.Item name="exterior_antenna_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
               </Row>
               <Row gutter={16} style={{ marginBottom: 4 }}>
                 <Col span={6} />
@@ -315,8 +315,8 @@ export default function ReceptionPage() {
               </Row>
               <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
                 <Col span={6}><Typography.Text>Espejos laterales</Typography.Text></Col>
-                <Col span={9}><Form.Item name="exterior_mirror_left_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
-                <Col span={9}><Form.Item name="exterior_mirror_right_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_mirror_left_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_mirror_right_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
               </Row>
               <Typography.Text strong style={{ display: 'block', margin: '8px 0 4px' }}>Limpiaparabrisas</Typography.Text>
               <Row gutter={16} style={{ marginBottom: 4 }}>
@@ -326,12 +326,12 @@ export default function ReceptionPage() {
               </Row>
               <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
                 <Col span={6}><Typography.Text>Delanteros</Typography.Text></Col>
-                <Col span={9}><Form.Item name="exterior_wiper_front_left_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
-                <Col span={9}><Form.Item name="exterior_wiper_front_right_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_wiper_front_left_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_wiper_front_right_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
               </Row>
               <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
                 <Col span={6}><Typography.Text>Trasero</Typography.Text></Col>
-                <Col span={18}><Form.Item name="exterior_wiper_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+                <Col span={18}><Form.Item name="exterior_wiper_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
               </Row>
               <Typography.Text strong style={{ display: 'block', margin: '8px 0 4px' }}>Tapón de rueda</Typography.Text>
               <Row gutter={16} style={{ marginBottom: 4 }}>
@@ -341,17 +341,17 @@ export default function ReceptionPage() {
               </Row>
               <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
                 <Col span={6}><Typography.Text>Izquierda</Typography.Text></Col>
-                <Col span={9}><Form.Item name="exterior_wheel_cap_left_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
-                <Col span={9}><Form.Item name="exterior_wheel_cap_left_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_wheel_cap_left_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_wheel_cap_left_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
               </Row>
               <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
                 <Col span={6}><Typography.Text>Derecha</Typography.Text></Col>
-                <Col span={9}><Form.Item name="exterior_wheel_cap_right_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
-                <Col span={9}><Form.Item name="exterior_wheel_cap_right_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_wheel_cap_right_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_wheel_cap_right_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
               </Row>
               <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
                 <Col span={6}><Typography.Text>Tapa de gasolina</Typography.Text></Col>
-                <Col span={18}><Form.Item name="exterior_gas_cap_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+                <Col span={18}><Form.Item name="exterior_gas_cap_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
               </Row>
               <Row gutter={16} style={{ marginBottom: 4 }}>
                 <Col span={6} />
@@ -360,8 +360,8 @@ export default function ReceptionPage() {
               </Row>
               <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
                 <Col span={6}><Typography.Text>Placas</Typography.Text></Col>
-                <Col span={9}><Form.Item name="exterior_plate_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
-                <Col span={9}><Form.Item name="exterior_plate_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_plate_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_plate_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
               </Row>
               <Row gutter={16} style={{ marginBottom: 4 }}>
                 <Col span={6} />
@@ -370,8 +370,8 @@ export default function ReceptionPage() {
               </Row>
               <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
                 <Col span={6}><Typography.Text>Parachoque</Typography.Text></Col>
-                <Col span={9}><Form.Item name="exterior_bumper_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
-                <Col span={9}><Form.Item name="exterior_bumper_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Bueno</Radio><Radio value={false}>Malo</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_bumper_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={9}><Form.Item name="exterior_bumper_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
               </Row>
               <Form.Item name="exterior_dents_detail" label="Abolladuras">
                 <Input.TextArea rows={2} placeholder="Describir abolladuras..." />
@@ -480,15 +480,6 @@ export default function ReceptionPage() {
               </Row>
               <Form.Item name="interior_notes" label="Notas del interior">
                 <Input.TextArea rows={2} placeholder="Observaciones adicionales..." />
-              </Form.Item>
-
-              <Divider />
-              <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>Documentos</Typography.Text>
-              <Form.Item name="documents_ok" valuePropName="checked">
-                <Checkbox>Documentos en regla (tarjeta circulación, seguro)</Checkbox>
-              </Form.Item>
-              <Form.Item name="documents_notes" label="Notas de documentos">
-                <Input.TextArea rows={2} placeholder="Observaciones..." />
               </Form.Item>
 
               <Divider />
