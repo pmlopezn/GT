@@ -251,15 +251,43 @@ taller-mecanico/
 |-------|------|---------|
 | work_order | O2O → WorkOrder | CASCADE |
 | inspected_by | FK → Employee | SET_NULL |
+| Sección Luces | | |
+| light_medium_left_ok, light_medium_right_ok | BooleanField | |
+| light_low_left_ok, light_low_right_ok | BooleanField | |
+| light_high_left_ok, light_high_right_ok | BooleanField | |
+| light_turn_left_ok, light_turn_right_ok | BooleanField | |
+| light_plate_front_ok, light_plate_rear_ok | BooleanField | |
+| Sección Vidrios | | |
+| glass_windshield_ok, glass_rear_ok | BooleanField | |
+| glass_left_front_ok, glass_left_rear_ok, glass_left_quarter_ok | BooleanField | |
+| glass_right_front_ok, glass_right_rear_ok, glass_right_quarter_ok | BooleanField | |
+| glass_notes | TextField | |
+| Sección Exterior | | |
+| exterior_antenna_ok | BooleanField | |
+| exterior_mirror_left_ok, exterior_mirror_right_ok | BooleanField | |
+| exterior_wiper_front_left_ok, exterior_wiper_front_right_ok, exterior_wiper_rear_ok | BooleanField | |
+| exterior_wheel_cap_left_front_ok, exterior_wheel_cap_left_rear_ok, exterior_wheel_cap_right_front_ok, exterior_wheel_cap_right_rear_ok | BooleanField | |
+| exterior_gas_cap_ok | BooleanField | |
+| exterior_plate_front_ok, exterior_plate_rear_ok | BooleanField | |
+| exterior_bumper_front_ok, exterior_bumper_rear_ok | BooleanField | |
+| exterior_dents_detail, exterior_scratches_detail | TextField | |
 | exterior_notes | TextField | |
-| has_dents, has_scratches, has_rust, has_paint_damage, has_cracked_glass, has_missing_parts | BooleanField | |
-| missing_parts_detail | TextField | |
+| Sección Interior | | |
+| interior_radio_ok, interior_radio_cd_dvd, interior_radio_screen | BooleanField | |
+| interior_cigarette_lighter_ok | BooleanField | |
+| interior_horn_ok | BooleanField | |
+| interior_rearview_mirror_ok | BooleanField | |
+| interior_window_handle_lf_ok, interior_window_handle_rf_ok, interior_window_handle_lr_ok, interior_window_handle_rr_ok | BooleanField | |
+| interior_grab_handle_lf_ok, interior_grab_handle_rf_ok, interior_grab_handle_lr_ok, interior_grab_handle_rr_ok | BooleanField | |
+| interior_door_pull_lf_ok, interior_door_pull_rf_ok, interior_door_pull_lr_ok, interior_door_pull_rr_ok | BooleanField | |
+| interior_seatbelts_ok, interior_floor_ok, interior_floor_mats_ok | BooleanField | |
+| interior_floor_type | CharField(20) | alfombra/goma |
+| interior_seat_covers_front_ok, interior_seat_covers_rear_ok | BooleanField | |
+| interior_spare_tire_ok, interior_jack_ok | BooleanField | |
+| interior_extinguisher_ok, interior_triangles_ok | BooleanField | |
 | interior_notes | TextField | |
-| has_damaged_seats, has_bad_odor, has_dashboard_warning | BooleanField | |
-| dashboard_warning_detail | TextField | |
-| tire_condition | TextField | |
-| spare_tire_present, jack_present | BooleanField | |
 | mileage_in | IntegerField | |
+| mileage_unit | CharField(10) | default='KM' |
 | fuel_level | CharField(20) | |
 | documents_ok | BooleanField | |
 | documents_notes | TextField | |

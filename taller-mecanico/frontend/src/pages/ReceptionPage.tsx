@@ -385,26 +385,101 @@ export default function ReceptionPage() {
 
               <Divider />
               <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>Interior</Typography.Text>
-              <Row gutter={16}>
-                <Col span={8}><Form.Item name="has_damaged_seats" valuePropName="checked"><Checkbox>Asientos Dañados</Checkbox></Form.Item></Col>
-                <Col span={8}><Form.Item name="has_bad_odor" valuePropName="checked"><Checkbox>Mal Olor</Checkbox></Form.Item></Col>
-                <Col span={8}><Form.Item name="has_dashboard_warning" valuePropName="checked"><Checkbox>Luces Tablero</Checkbox></Form.Item></Col>
+              <Typography.Text strong style={{ display: 'block', margin: '8px 0 4px' }}>Radio</Typography.Text>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Radio</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_radio_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
               </Row>
-              <Form.Item name="dashboard_warning_detail" label="Detalle de advertencias en tablero">
-                <Input.TextArea rows={2} placeholder="Qué luces están encendidas..." />
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>CD/DVD</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_radio_cd_dvd" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Pantalla</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_radio_screen" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Cigarrera</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_cigarette_lighter_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Bocina</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_horn_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Retrovisor</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_rearview_mirror_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 4 }}>
+                <Col span={6} />
+                <Col span={4}><Typography.Text strong style={{ fontSize: 12 }}>Izq.Del</Typography.Text></Col>
+                <Col span={5}><Typography.Text strong style={{ fontSize: 12 }}>Izq.Tras</Typography.Text></Col>
+                <Col span={4}><Typography.Text strong style={{ fontSize: 12 }}>Der.Del</Typography.Text></Col>
+                <Col span={5}><Typography.Text strong style={{ fontSize: 12 }}>Der.Tras</Typography.Text></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Manijas vidrio</Typography.Text></Col>
+                <Col span={4}><Form.Item name="interior_window_handle_lf_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={5}><Form.Item name="interior_window_handle_lr_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={4}><Form.Item name="interior_window_handle_rf_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={5}><Form.Item name="interior_window_handle_rr_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Sujetador manos</Typography.Text></Col>
+                <Col span={4}><Form.Item name="interior_grab_handle_lf_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={5}><Form.Item name="interior_grab_handle_lr_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={4}><Form.Item name="interior_grab_handle_rf_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={5}><Form.Item name="interior_grab_handle_rr_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Jalador puertas</Typography.Text></Col>
+                <Col span={4}><Form.Item name="interior_door_pull_lf_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={5}><Form.Item name="interior_door_pull_lr_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={4}><Form.Item name="interior_door_pull_rf_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+                <Col span={5}><Form.Item name="interior_door_pull_rr_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Cinturones</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_seatbelts_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Pisos</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_floor_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Form.Item name="interior_floor_type" label="Tipo de piso">
+                <Select options={[{ value: 'alfombra', label: 'Alfombra' }, { value: 'goma', label: 'Goma' }]} />
               </Form.Item>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Tapetes</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_floor_mats_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Typography.Text strong style={{ display: 'block', margin: '8px 0 4px' }}>Fundas de asientos</Typography.Text>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Delanteras</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_seat_covers_front_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Traseras</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_seat_covers_rear_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Llanta auxilio</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_spare_tire_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Gata</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_jack_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Extintor</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_extinguisher_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
+              <Row gutter={16} style={{ marginBottom: 6, alignItems: 'center' }}>
+                <Col span={6}><Typography.Text>Triángulos seg.</Typography.Text></Col>
+                <Col span={18}><Form.Item name="interior_triangles_ok" style={{ marginBottom: 0 }}><Radio.Group size="small"><Radio value={true}>Sí</Radio><Radio value={false}>No</Radio></Radio.Group></Form.Item></Col>
+              </Row>
               <Form.Item name="interior_notes" label="Notas del interior">
                 <Input.TextArea rows={2} placeholder="Observaciones adicionales..." />
-              </Form.Item>
-
-              <Divider />
-              <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>Llantas y Herramientas</Typography.Text>
-              <Row gutter={16}>
-                <Col span={8}><Form.Item name="spare_tire_present" valuePropName="checked"><Checkbox>Llanta de Repuesto</Checkbox></Form.Item></Col>
-                <Col span={8}><Form.Item name="jack_present" valuePropName="checked"><Checkbox>Gato</Checkbox></Form.Item></Col>
-              </Row>
-              <Form.Item name="tire_condition" label="Estado de llantas">
-                <Input.TextArea rows={2} placeholder="Desgaste, presión, etc..." />
               </Form.Item>
 
               <Divider />

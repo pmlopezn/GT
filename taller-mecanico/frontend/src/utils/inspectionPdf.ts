@@ -222,15 +222,26 @@ export async function generateInspectionPdf(data: InspectionPdfData) {
   y += 6
   // Interior
   drawSection('INTERIOR', [
-    ['Asientos Dañados', yesNo(insp.has_damaged_seats), 'Mal Olor', yesNo(insp.has_bad_odor)],
-    ['Luces Tablero', yesNo(insp.has_dashboard_warning), '', ''],
+    ['Radio', yesNo(insp.interior_radio_ok), 'CD/DVD', yesNo(insp.interior_radio_cd_dvd)],
+    ['Pantalla', yesNo(insp.interior_radio_screen), 'Cigarrera', yesNo(insp.interior_cigarette_lighter_ok)],
+    ['Bocina', yesNo(insp.interior_horn_ok), 'Retrovisor', yesNo(insp.interior_rearview_mirror_ok)],
+    ['Manija vidrio I-D', yesNo(insp.interior_window_handle_lf_ok), 'Manija vidrio D-D', yesNo(insp.interior_window_handle_rf_ok)],
+    ['Manija vidrio I-T', yesNo(insp.interior_window_handle_lr_ok), 'Manija vidrio D-T', yesNo(insp.interior_window_handle_rr_ok)],
+    ['Sujetador I-D', yesNo(insp.interior_grab_handle_lf_ok), 'Sujetador D-D', yesNo(insp.interior_grab_handle_rf_ok)],
+    ['Sujetador I-T', yesNo(insp.interior_grab_handle_lr_ok), 'Sujetador D-T', yesNo(insp.interior_grab_handle_rr_ok)],
+    ['Jalador I-D', yesNo(insp.interior_door_pull_lf_ok), 'Jalador D-D', yesNo(insp.interior_door_pull_rf_ok)],
+    ['Jalador I-T', yesNo(insp.interior_door_pull_lr_ok), 'Jalador D-T', yesNo(insp.interior_door_pull_rr_ok)],
+    ['Cinturones', yesNo(insp.interior_seatbelts_ok), 'Pisos', yesNo(insp.interior_floor_ok)],
+    ['Tipo piso', insp.interior_floor_type || '—', 'Tapetes', yesNo(insp.interior_floor_mats_ok)],
+    ['Fundas del.', yesNo(insp.interior_seat_covers_front_ok), 'Fundas tras.', yesNo(insp.interior_seat_covers_rear_ok)],
+    ['Llanta auxilio', yesNo(insp.interior_spare_tire_ok), 'Gata', yesNo(insp.interior_jack_ok)],
+    ['Extintor', yesNo(insp.interior_extinguisher_ok), 'Triángulos seg.', yesNo(insp.interior_triangles_ok)],
   ], [])
-
-  y += 6
-  // Tires
-  drawSection('LLANTAS Y HERRAMIENTAS', [
-    ['Llanta de Repuesto', yesNo(insp.spare_tire_present), 'Gato', yesNo(insp.jack_present)],
-  ], [])
+  if (insp.interior_notes) {
+    drawSection('', [
+      ['Notas interior', insp.interior_notes, '', ''],
+    ], [])
+  }
 
   // Signatures
   y += 20
