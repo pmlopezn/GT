@@ -176,9 +176,12 @@ export async function generateInspectionPdf(data: InspectionPdfData) {
           y = margin
         }
         doc.setFontSize(9)
-        doc.setFont('helvetica', 'normal')
+        doc.setFont('helvetica', 'bold')
         doc.setTextColor(60, 60, 60)
-        doc.text(`${nf.label}: ${nf.value}`, margin, y)
+        doc.text(nf.label, margin, y)
+        y += 4
+        doc.setFont('helvetica', 'normal')
+        doc.text(nf.value, margin, y)
         y += 5
       }
     })

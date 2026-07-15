@@ -59,6 +59,7 @@ class WorkOrderListSerializer(serializers.ModelSerializer):
 
 class WorkOrderDetailSerializer(serializers.ModelSerializer):
     customer_name = serializers.CharField(source="customer.full_name", read_only=True)
+    customer_phone = serializers.CharField(source="customer.phone", read_only=True)
     customer_id = serializers.IntegerField(source="customer.id", read_only=True)
     vehicle_plate = serializers.CharField(source="vehicle.plate", read_only=True)
     vehicle_id = serializers.IntegerField(source="vehicle.id", read_only=True)
