@@ -11,8 +11,17 @@ class ServiceVehiclePriceSerializer(serializers.ModelSerializer):
 
     vehicle_type_display = serializers.SerializerMethodField()
 
+    VEHICLE_TYPE_DISPLAY = {
+        'automovil': 'Automóvil',
+        'vagoneta': 'Vagoneta',
+        'camioneta': 'Camioneta',
+        'camion': 'Camión',
+        'trufi': 'Trufi',
+        'micro': 'Micro',
+    }
+
     def get_vehicle_type_display(self, obj):
-        return obj.get_vehicle_type_display()
+        return self.VEHICLE_TYPE_DISPLAY.get(obj.vehicle_type, obj.vehicle_type)
 
 
 class ServiceSerializer(serializers.ModelSerializer):
