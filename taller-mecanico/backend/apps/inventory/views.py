@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
-from apps.accounts.permissions import IsAdmin
+from apps.accounts.permissions import IsAdmin, IsAdminOrReadOnly
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -13,7 +13,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related("category").all()
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
     search_fields = ["name", "sku", "description"]
     filterset_fields = ["category", "is_active"]
