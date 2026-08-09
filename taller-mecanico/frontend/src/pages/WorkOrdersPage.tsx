@@ -98,10 +98,10 @@ export default function WorkOrdersPage() {
       title: 'Estado', dataIndex: 'status', key: 'status',
       render: (s: string, record: any) => {
         const st = statusLabels[s] || { color: 'default', label: s }
-        const opts = getStatusOptions(s)
-        if (opts.length === 0) {
-          return <Tag color={st.color}>{st.label}</Tag>
-        }
+        const opts = [
+          { value: s, label: st.label, disabled: true },
+          ...getStatusOptions(s),
+        ]
         return (
           <Select
             value={s}
@@ -113,10 +113,12 @@ export default function WorkOrdersPage() {
         )
       },
     },
-    {
-      title: 'Total', dataIndex: 'total', key: 'total',
-      render: (v: number | string) => `Bs. ${Number(v || 0).toFixed(2)}`,
-    },
+    ...(isMechanic
+      ? []
+      : [{
+          title: 'Total', dataIndex: 'total', key: 'total',
+          render: (v: number | string) => `Bs. ${Number(v || 0).toFixed(2)}`,
+        }]),
     {
       title: 'Creado', dataIndex: 'created_at', key: 'created_at',
       render: (v: string) => new Date(v).toLocaleDateString(),
@@ -156,17 +158,23 @@ export default function WorkOrdersPage() {
           )}
           <Button icon={<FilePdfOutlined />} onClick={() => {
             const rows = data?.results || data || []
+            const columns = [
+              { header: 'OT #', dataKey: 'id' },
+              { header: 'Cliente', dataKey: 'customer_name' },
+              { header: 'Vehículo', dataKey: 'vehicle_info' },
+              { header: 'Registrado por', dataKey: 'assigned_to_name' },
+              { header: 'Estado', dataKey: 'status' },
+              ...(isMechanic
+                ? []
+                : [{ header: 'Total', dataKey: 'total' }]),
+            ]
+            const pdfRows = isMechanic
+              ? rows.map((r: any) => ({ ...r, status: statusLabels[r.status]?.label || r.status }))
+              : rows.map((r: any) => ({ ...r, status: statusLabels[r.status]?.label || r.status, total: `Bs. ${Number(r.total || 0).toFixed(2)}` }))
             generatePdfReport({
               title: 'Órdenes de Trabajo',
-              columns: [
-                { header: 'OT #', dataKey: 'id' },
-                { header: 'Cliente', dataKey: 'customer_name' },
-                { header: 'Vehículo', dataKey: 'vehicle_info' },
-                { header: 'Registrado por', dataKey: 'assigned_to_name' },
-                { header: 'Estado', dataKey: 'status' },
-                { header: 'Total', dataKey: 'total' },
-              ],
-              rows: rows.map((r: any) => ({ ...r, total: `Bs. ${Number(r.total || 0).toFixed(2)}` })),
+              columns,
+              rows: pdfRows,
               userName: user?.username,
             })
           }}>Reporte PDF</Button>

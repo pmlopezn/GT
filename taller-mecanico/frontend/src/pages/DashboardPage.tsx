@@ -23,6 +23,8 @@ export default function DashboardPage() {
 
   if (isLoading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />
 
+  const isMechanic = user?.role === 'mechanic'
+
   const statusLabels: Record<string, { color: string; label: string }> = {
     pending: { color: 'orange', label: 'Pendiente' },
     in_progress: { color: 'blue', label: 'En Progreso' },
@@ -42,10 +44,12 @@ export default function DashboardPage() {
         return <Tag color={st.color}>{st.label}</Tag>
       },
     },
-    {
-      title: 'Total', dataIndex: 'total', key: 'total',
-      render: (v: number | string) => `Bs. ${Number(v || 0).toFixed(2)}`,
-    },
+    ...(isMechanic
+      ? []
+      : [{
+          title: 'Total', dataIndex: 'total', key: 'total',
+          render: (v: number | string) => `Bs. ${Number(v || 0).toFixed(2)}`,
+        }]),
   ]
 
   return (
@@ -58,7 +62,7 @@ export default function DashboardPage() {
           const summary = [
             { metric: 'Órdenes Activas', value: String(d.active_orders || 0) },
             { metric: 'Citas Hoy', value: String(d.today_appointments || 0) },
-            { metric: 'Ingresos del Mes', value: `Bs. ${Number(d.monthly_income || 0).toFixed(2)}` },
+            { metric: isMechanic ? 'Mis Ingresos del Mes (comisión)' : 'Ingresos del Mes', value: `Bs. ${Number(d.monthly_income || 0).toFixed(2)}` },
             { metric: 'Stock Bajo', value: String(d.low_stock || 0) },
           ]
           await generatePdfReport({
@@ -97,7 +101,7 @@ export default function DashboardPage() {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Ingresos del Mes"
+              title={isMechanic ? 'Mis Ingresos del Mes (comisión)' : 'Ingresos del Mes'}
               value={data?.monthly_income || 0}
               prefix={<DollarOutlined />}
               precision={2}

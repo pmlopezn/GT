@@ -113,6 +113,7 @@ export default function WorkOrderFormPage() {
       queryClient.invalidateQueries({ queryKey: ['work-orders'] })
       queryClient.invalidateQueries({ queryKey: ['work-order', id] })
       message.success('Estado actualizado')
+      navigate('/')
     },
     onError: (err: any) => message.error(err?.response?.data?.error || 'Error al actualizar estado'),
   })
@@ -235,6 +236,8 @@ export default function WorkOrderFormPage() {
     statusMutation.mutate('completed')
   }
 
+  const mechanicLocked = isMechanic && order?.status === 'completed'
+
   const serviceColumns = [
     { title: 'Servicio', dataIndex: 'service', key: 'service', width: 250,
       render: (_: any, __: any, index: number) => (
@@ -245,6 +248,7 @@ export default function WorkOrderFormPage() {
           value={servicesRows[index]?.service}
           onChange={(v) => updateServiceRow(index, 'service', v)}
           options={servicesList.map((s: any) => ({ value: s.id, label: s.name }))}
+          disabled={mechanicLocked}
         />
       ),
     },
@@ -267,6 +271,7 @@ export default function WorkOrderFormPage() {
           style={{ width: '100%' }}
           value={servicesRows[index]?.quantity}
           onChange={(v) => updateServiceRow(index, 'quantity', v)}
+          disabled={mechanicLocked}
         />
       ),
     },
@@ -278,10 +283,10 @@ export default function WorkOrderFormPage() {
     },
     { title: '', key: 'action', width: 50,
       render: (_: any, __: any, index: number) => (
-        <Button icon={<DeleteOutlined />} size="small" danger onClick={() => removeServiceRow(index)} />
+        <Button icon={<DeleteOutlined />} size="small" danger onClick={() => removeServiceRow(index)} disabled={mechanicLocked} />
       ),
     },
-  ]
+  ].filter(col => !isMechanic || (col.key !== 'price' && col.key !== 'subtotal'))
 
   const productColumns = [
     { title: 'Producto', dataIndex: 'product', key: 'product', width: 250,
@@ -293,6 +298,7 @@ export default function WorkOrderFormPage() {
           value={productsRows[index]?.product}
           onChange={(v) => updateProductRow(index, 'product', v)}
           options={productsList.map((p: any) => ({ value: p.id, label: p.name }))}
+          disabled={mechanicLocked}
         />
       ),
     },
@@ -315,6 +321,7 @@ export default function WorkOrderFormPage() {
           style={{ width: '100%' }}
           value={productsRows[index]?.quantity}
           onChange={(v) => updateProductRow(index, 'quantity', v)}
+          disabled={mechanicLocked}
         />
       ),
     },
@@ -326,10 +333,10 @@ export default function WorkOrderFormPage() {
     },
     { title: '', key: 'action', width: 50,
       render: (_: any, __: any, index: number) => (
-        <Button icon={<DeleteOutlined />} size="small" danger onClick={() => removeProductRow(index)} />
+        <Button icon={<DeleteOutlined />} size="small" danger onClick={() => removeProductRow(index)} disabled={mechanicLocked} />
       ),
     },
-  ]
+  ].filter(col => !isMechanic || (col.key !== 'price' && col.key !== 'subtotal'))
 
   const handlePrint = async () => {
     await generateWorkOrderPdf({ workOrder: order, userName: user?.username || user?.first_name || '—' })
@@ -412,7 +419,7 @@ export default function WorkOrderFormPage() {
             rowKey={(_, i) => String(i)}
             pagination={false}
             footer={() => (
-              <Button type="dashed" icon={<PlusOutlined />} onClick={addServiceRow}>Agregar Servicio</Button>
+              <Button type="dashed" icon={<PlusOutlined />} onClick={addServiceRow} disabled={isMechanic && (statusMutation.isPending || currentStatus === 'completed')}>Agregar Servicio</Button>
             )}
             style={{ marginBottom: 16 }}
           />
@@ -424,20 +431,26 @@ export default function WorkOrderFormPage() {
             rowKey={(_, i) => String(i)}
             pagination={false}
             footer={() => (
-              <Button type="dashed" icon={<PlusOutlined />} onClick={addProductRow}>Agregar Producto</Button>
+              <Button type="dashed" icon={<PlusOutlined />} onClick={addProductRow} disabled={isMechanic && (statusMutation.isPending || currentStatus === 'completed')}>Agregar Producto</Button>
             )}
             style={{ marginBottom: 16 }}
           />
 
-          <Typography.Title level={5} style={{ textAlign: 'right' }}>
-            Total: Bs. {calcTotal().toFixed(2)}
-          </Typography.Title>
+          {!isMechanic && (
+            <Typography.Title level={5} style={{ textAlign: 'right' }}>
+              Total: Bs. {calcTotal().toFixed(2)}
+            </Typography.Title>
+          )}
 
           <Divider />
           <Space>
-            <Button type="primary" htmlType="submit" loading={createMutation.isPending || updateMutation.isPending}>
-              {isEdit ? 'Actualizar' : 'Crear Orden'}
-            </Button>
+            {mechanicLocked ? (
+              <Button type="primary" onClick={() => navigate('/work-orders')}>Volver</Button>
+            ) : (
+              <Button type="primary" htmlType="submit" loading={createMutation.isPending || updateMutation.isPending}>
+                {isEdit ? 'Actualizar' : 'Crear Orden'}
+              </Button>
+            )}
             {isEdit && isMechanic && currentStatus === 'in_progress' && (
               <Button
                 type="primary"
@@ -449,7 +462,7 @@ export default function WorkOrderFormPage() {
                 Completar Orden
               </Button>
             )}
-            <Button onClick={() => navigate('/work-orders')}>Cancelar</Button>
+            {!mechanicLocked && <Button onClick={() => navigate('/work-orders')}>Cancelar</Button>}
           </Space>
         </Form>
       </Card>
