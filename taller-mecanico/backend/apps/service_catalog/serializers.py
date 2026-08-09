@@ -18,6 +18,7 @@ class ServiceVehiclePriceSerializer(serializers.ModelSerializer):
         'camion': 'Camión',
         'trufi': 'Trufi',
         'micro': 'Micro',
+        'minivan': 'Minivan',
     }
 
     def get_vehicle_type_display(self, obj):

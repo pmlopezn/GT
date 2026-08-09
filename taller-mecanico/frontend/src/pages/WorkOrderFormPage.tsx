@@ -19,6 +19,7 @@ const vehicleTypes = [
   { value: 'camion', label: 'Camión' },
   { value: 'trufi', label: 'Trufi' },
   { value: 'micro', label: 'Micro' },
+  { value: 'minivan', label: 'Minivan' },
 ]
 
 const statusLabels: Record<string, { color: string; label: string }> = {
@@ -149,7 +150,7 @@ export default function WorkOrderFormPage() {
     const svc = servicesList.find((s: any) => s.id === serviceId)
     if (!svc) return 0
     if (vehicleType && svc.vehicle_prices?.length) {
-      const match = svc.vehicle_prices.find((p: any) => p.vehicle_type === vehicleType)
+      const match = svc.vehicle_prices.find((p: any) => p.vehicle_type.toLowerCase() === vehicleType.toLowerCase())
       if (match) return Number(match.price)
     }
     return Number(svc.price || 0)

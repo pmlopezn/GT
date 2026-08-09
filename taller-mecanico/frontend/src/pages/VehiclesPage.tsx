@@ -13,6 +13,7 @@ const baseVehicleTypes = [
   { value: 'camion', label: 'Camión' },
   { value: 'trufi', label: 'Trufi' },
   { value: 'micro', label: 'Micro' },
+  { value: 'minivan', label: 'Minivan' },
 ]
 
 const formatType = (v: string) =>
@@ -154,7 +155,7 @@ export default function VehiclesPage() {
           const payload = {
             ...values,
             brand: Array.isArray(values.brand) ? values.brand[0] : values.brand,
-            vehicle_type: Array.isArray(values.vehicle_type) ? values.vehicle_type[0] : values.vehicle_type,
+            vehicle_type: (Array.isArray(values.vehicle_type) ? values.vehicle_type[0] : values.vehicle_type).toLowerCase(),
           }
           editing ? updateMutation.mutate(payload) : createMutation.mutate(payload)
         }}>

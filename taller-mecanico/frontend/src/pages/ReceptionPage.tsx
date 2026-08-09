@@ -16,6 +16,7 @@ const vehicleTypes = [
   { value: 'camion', label: 'Camión' },
   { value: 'trufi', label: 'Trufi' },
   { value: 'micro', label: 'Micro' },
+  { value: 'minivan', label: 'Minivan' },
 ]
 
 const statusLabels: Record<string, { color: string; label: string }> = {

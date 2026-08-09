@@ -13,6 +13,7 @@ const vehicleTypes = [
   { value: 'camion', label: 'Camión' },
   { value: 'trufi', label: 'Trufi' },
   { value: 'micro', label: 'Micro' },
+  { value: 'minivan', label: 'Minivan' },
 ]
 
 export default function ServicesPage() {
