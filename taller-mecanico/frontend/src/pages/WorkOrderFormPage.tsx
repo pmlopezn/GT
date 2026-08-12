@@ -1,26 +1,18 @@
-import { useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-  Card, Form, Select, InputNumber, Button, Space, Typography, message, Spin, Divider,
-  Table, Tag,
+  Card, Form, Select, Input, InputNumber, Button, Space, Typography, message, Spin, Divider,
+  Table, Tag, Row, Col,
 } from 'antd'
 import { PlusOutlined, DeleteOutlined, PrinterOutlined, CheckCircleOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
 import { generateWorkOrderPdf } from '../utils/workOrderPdf'
+import { vehicleTypes } from '../constants/vehicleTypes'
 
-import { useState } from 'react'
-
-const vehicleTypes = [
-  { value: 'automovil', label: 'Automóvil' },
-  { value: 'vagoneta', label: 'Vagoneta' },
-  { value: 'camioneta', label: 'Camioneta' },
-  { value: 'camion', label: 'Camión' },
-  { value: 'trufi', label: 'Trufi' },
-  { value: 'micro', label: 'Micro' },
-  { value: 'minivan', label: 'Minivan' },
-]
+const normalizeType = (v: string) =>
+  v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 
 const statusLabels: Record<string, { color: string; label: string }> = {
   pending: { color: 'orange', label: 'Pendiente' },
@@ -42,6 +34,8 @@ export default function WorkOrderFormPage() {
   const [vehicleType, setVehicleType] = useState<string | null>(null)
   const [servicesRows, setServicesRows] = useState<any[]>([])
   const [productsRows, setProductsRows] = useState<any[]>([])
+  const getServicePriceRef = useRef<(id: number) => number>(() => 0)
+  const getProductPriceRef = useRef<(id: number) => number>(() => 0)
 
   useEffect(() => {
     if (!isEdit && isMechanic) {
@@ -125,13 +119,14 @@ export default function WorkOrderFormPage() {
         const veh = (Array.isArray(vehicles) ? vehicles : []).find((v: any) => v.id === order.vehicle)
         if (veh) setVehicleType(veh.vehicle_type)
       }
-      setServicesRows(order.services?.map((s: any) => ({
+      const rows = order.services?.map((s: any) => ({
         service: s.service,
         service_name: s.service_name,
         price: Number(s.price),
         quantity: s.quantity,
         notes: s.notes,
-      })) || [])
+      })) || []
+      setServicesRows(rows)
       setProductsRows(order.products?.map((p: any) => ({
         product: p.product,
         product_name: p.product_name,
@@ -142,6 +137,18 @@ export default function WorkOrderFormPage() {
     }
   }, [order, vehicles, form])
 
+  useEffect(() => {
+    if (!vehicleType) return
+    setServicesRows(rows => rows.map(row => {
+      if (!row.service) return row
+      return { ...row, price: getServicePriceRef.current(row.service) }
+    }))
+    setProductsRows(rows => rows.map(row => {
+      if (!row.product) return row
+      return { ...row, price: getProductPriceRef.current(row.product) }
+    }))
+  }, [vehicleType, services, products])
+
   const getVehicleType = (vehicleId: number): string | null => {
     const veh = (Array.isArray(vehicles) ? vehicles : []).find((v: any) => v.id === vehicleId)
     return veh?.vehicle_type || null
@@ -151,7 +158,7 @@ export default function WorkOrderFormPage() {
     const svc = servicesList.find((s: any) => s.id === serviceId)
     if (!svc) return 0
     if (vehicleType && svc.vehicle_prices?.length) {
-      const match = svc.vehicle_prices.find((p: any) => p.vehicle_type.toLowerCase() === vehicleType.toLowerCase())
+      const match = svc.vehicle_prices.find((p: any) => normalizeType(p.vehicle_type) === normalizeType(vehicleType))
       if (match) return Number(match.price)
     }
     return Number(svc.price || 0)
@@ -161,6 +168,9 @@ export default function WorkOrderFormPage() {
     const prod = productsList.find((p: any) => p.id === productId)
     return Number(prod?.sale_price || 0)
   }
+
+  getServicePriceRef.current = getServicePrice
+  getProductPriceRef.current = getProductPrice
 
   const updateServiceRow = (index: number, field: string, value: any) => {
     const updated = [...servicesRows]
@@ -406,6 +416,20 @@ export default function WorkOrderFormPage() {
               </Form.Item>
             </Space>
           )}
+
+          <Divider orientation="left">Motivo de Ingreso / Diagnóstico</Divider>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="reported_problem" label="Problema reportado por el propietario">
+                <Input.TextArea rows={4} disabled={mechanicLocked} placeholder="Describe el problema que el propietario manifiesta al entregar el vehículo" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="initial_diagnosis" label="Diagnóstico inicial del mecánico">
+                <Input.TextArea rows={4} disabled={mechanicLocked} placeholder="Registra el diagnóstico inicial como referencia para los servicios" />
+              </Form.Item>
+            </Col>
+          </Row>
 
           <Divider orientation="left">Servicios</Divider>
           {vehicleType && (

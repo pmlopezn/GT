@@ -35,6 +35,7 @@ const adminMenu = [
   { key: '/purchase-orders', icon: <ShoppingCartOutlined />, label: 'Compras' },
   { key: '/invoices', icon: <FileTextOutlined />, label: 'Facturación' },
   { key: '/employees', icon: <TeamOutlined />, label: 'Empleados' },
+  { key: '/maintenance', icon: <SettingOutlined />, label: 'Mantenimiento' },
 ]
 
 const receptionistMenu = [

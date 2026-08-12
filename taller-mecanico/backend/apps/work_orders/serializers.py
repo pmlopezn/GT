@@ -1,5 +1,48 @@
 from rest_framework import serializers
+import unicodedata
 from .models import WorkOrder, WorkOrderService, WorkOrderProduct, VehicleInspection
+from apps.service_catalog.models import ServiceVehiclePrice
+
+
+def _normalize(v):
+    return unicodedata.normalize("NFD", str(v or "").lower()).encode("ascii", "ignore").decode("ascii")
+
+
+def _resolve_service_price(vehicle_type, service, client_price):
+    """Return catalog price for the vehicle type; fallback to client price / service.price."""
+    price = client_price
+    service_id = service.id if service else None
+    if price is None or float(price) <= 0:
+        vt = _normalize(vehicle_type)
+        match = None
+        for p in ServiceVehiclePrice.objects.filter(service_id=service_id).all():
+            if _normalize(p.vehicle_type) == vt:
+                match = p
+                break
+        if match is not None:
+            price = match.price
+        elif service is not None and service.price is not None:
+            price = service.price
+    return price
+
+
+def _resolve_product_price(product, client_price):
+    price = client_price
+    if price is None or float(price) <= 0:
+        if product is not None and product.sale_price is not None:
+            price = product.sale_price
+    return price
+
+
+def _recompute_total(work_order):
+    total = 0
+    for item in work_order.services.all():
+        total += float(item.price or 0) * item.quantity
+    for item in work_order.products.all():
+        total += float(item.price or 0) * item.quantity
+    work_order.total = round(total, 2)
+    work_order.save(update_fields=["total"])
+    return work_order.total
 
 
 class WorkOrderServiceSerializer(serializers.ModelSerializer):
@@ -87,32 +130,43 @@ class WorkOrderCreateSerializer(serializers.ModelSerializer):
         model = WorkOrder
         fields = [
             "id", "customer", "vehicle", "assigned_to", "status",
-            "description", "notes", "total", "services_data", "products_data",
+            "description", "notes", "reported_problem", "initial_diagnosis",
+            "total", "services_data", "products_data",
         ]
         read_only_fields = ["id", "status"]
 
     def create(self, validated_data):
         services_data = validated_data.pop("services_data", [])
         products_data = validated_data.pop("products_data", [])
+        vehicle_type = validated_data["vehicle"].vehicle_type if validated_data.get("vehicle") else None
         work_order = WorkOrder.objects.create(**validated_data)
         for item in services_data:
+            item["price"] = _resolve_service_price(vehicle_type, item.get("service"), item.get("price"))
             WorkOrderService.objects.create(work_order=work_order, **item)
         for item in products_data:
+            item["price"] = _resolve_product_price(item.get("product"), item.get("price"))
             WorkOrderProduct.objects.create(work_order=work_order, **item)
+        _recompute_total(work_order)
         return work_order
 
     def update(self, instance, validated_data):
         services_data = validated_data.pop("services_data", None)
         products_data = validated_data.pop("products_data", None)
+        vehicle_type = instance.vehicle.vehicle_type if instance.vehicle else None
+        if "vehicle" in validated_data and validated_data["vehicle"]:
+            vehicle_type = validated_data["vehicle"].vehicle_type
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
         if services_data is not None:
             instance.services.all().delete()
             for item in services_data:
+                item["price"] = _resolve_service_price(vehicle_type, item.get("service"), item.get("price"))
                 WorkOrderService.objects.create(work_order=instance, **item)
         if products_data is not None:
             instance.products.all().delete()
             for item in products_data:
+                item["price"] = _resolve_product_price(item.get("product"), item.get("price"))
                 WorkOrderProduct.objects.create(work_order=instance, **item)
+        _recompute_total(instance)
         return instance

@@ -123,6 +123,8 @@ class WorkOrder(models.Model):
     )
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
+    reported_problem = models.TextField(blank=True, verbose_name="Problema reportado por el propietario")
+    initial_diagnosis = models.TextField(blank=True, verbose_name="Diagnóstico inicial del mecánico")
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

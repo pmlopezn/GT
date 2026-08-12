@@ -27,12 +27,15 @@ class Customer(models.Model):
 
 class Vehicle(models.Model):
     class Type(models.TextChoices):
-        AUTOMOVIL = "automovil", "Automóvil"
-        VAGONETA = "vagoneta", "Vagoneta"
-        CAMIONETA = "camioneta", "Camioneta"
-        CAMION = "camion", "Camión"
-        TRUFI = "trufi", "Trufi"
+        AUTOMOVIL = "automovil", "Automovil (Hatchback)"
+        VAGONETA = "vagoneta", "SUV (Vagoneta)"
+        CAMIONETA = "camioneta", "Pickup (Camioneta)"
+        CROSS = "cross", "Cross"
+        MINIVAN = "minivan", "Minivan"
+        TRUFI = "trufi", "Minibus"
         MICRO = "micro", "Micro"
+        FURGONETA = "furgoneta", "Furgoneta Van"
+        CAMION = "camion", "Camion"
 
     class Brand(models.TextChoices):
         TOYOTA = "toyota", "Toyota"
@@ -103,6 +106,22 @@ class Vehicle(models.Model):
         Vauxhall = "vauxhall", "Vauxhall"
         OTRO = "otro", "Otro"
 
+class VehicleBrand(models.Model):
+    name = models.CharField(max_length=50, unique=True, verbose_name="Nombre")
+    is_active = models.BooleanField(default=True, verbose_name="Activo")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Marca de vehículo"
+        verbose_name_plural = "Marcas de vehículos"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class Vehicle(models.Model):
     customer = models.ForeignKey(
         Customer, on_delete=models.CASCADE, related_name="vehicles"
     )

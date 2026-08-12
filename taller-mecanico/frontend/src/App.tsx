@@ -17,6 +17,7 @@ import SuppliersPage from './pages/SuppliersPage'
 import PurchaseOrdersPage from './pages/PurchaseOrdersPage'
 import InvoicesPage from './pages/InvoicesPage'
 import EmployeesPage from './pages/EmployeesPage'
+import MaintenancePage from './pages/MaintenancePage'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -51,6 +52,7 @@ function AppRoutes() {
         <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
         <Route path="employees" element={<EmployeesPage />} />
+        <Route path="maintenance" element={<MaintenancePage />} />
       </Route>
     </Routes>
   )

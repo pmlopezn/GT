@@ -5,35 +5,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { generatePdfReport } from '../utils/pdfReport'
+import { vehicleTypes } from '../constants/vehicleTypes'
 
-const baseVehicleTypes = [
-  { value: 'automovil', label: 'Automóvil' },
-  { value: 'vagoneta', label: 'Vagoneta' },
-  { value: 'camioneta', label: 'Camioneta' },
-  { value: 'camion', label: 'Camión' },
-  { value: 'trufi', label: 'Trufi' },
-  { value: 'micro', label: 'Micro' },
-  { value: 'minivan', label: 'Minivan' },
-]
+const baseVehicleTypes = vehicleTypes
 
 const formatType = (v: string) =>
   baseVehicleTypes.find(t => t.value === v)?.label || v.charAt(0).toUpperCase() + v.slice(1).replace(/_/g, ' ')
-
-const baseBrands = [
-  'Toyota', 'Nissan', 'Suzuki', 'Honda', 'Chevrolet', 'Ford',
-  'Volkswagen', 'BMW', 'Mercedes-Benz', 'Hyundai', 'Kia',
-  'Mazda', 'Mitsubishi', 'Renault', 'Peugeot', 'Fiat',
-  'Jeep', 'Dodge', 'Subaru', 'Volvo', 'Audi', 'Lexus',
-  'Jaguar', 'Land Rover', 'Mini', 'Porsche',
-  'Acura', 'Alfa Romeo', 'Aston Martin', 'Bentley', 'Buick',
-  'Cadillac', 'Chery', 'Chrysler', 'Citroën', 'Dacia',
-  'Daewoo', 'Daihatsu', 'Ferrari', 'GAC', 'Geely', 'GMC',
-  'Great Wall', 'Haval', 'Hummer', 'Infiniti', 'Isuzu',
-  'Iveco', 'JAC', 'Lamborghini', 'Lancia', 'Lincoln',
-  'Lotus', 'Maserati', 'McLaren', 'MG', 'Morris', 'Opel',
-  'Rolls-Royce', 'Saab', 'SEAT', 'Škoda', 'Smart',
-  'SsangYong', 'Tesla', 'Vauxhall',
-]
 
 const formatBrand = (v: string) =>
   v.charAt(0).toUpperCase() + v.slice(1).replace(/_/g, ' ')
@@ -59,6 +36,11 @@ export default function VehiclesPage() {
   const { data: customers } = useQuery({
     queryKey: ['customers-all'],
     queryFn: () => api.get('/customers/', { params: { page_size: 200 } }).then(r => r.data?.results || r.data),
+  })
+
+  const { data: brands } = useQuery({
+    queryKey: ['vehicle-brands'],
+    queryFn: () => api.get('/vehicles/brands/').then(r => r.data?.results || r.data),
   })
 
   const createMutation = useMutation({
@@ -96,8 +78,8 @@ export default function VehiclesPage() {
             setEditing(record)
             form.setFieldsValue({
               ...record,
-              brand: record.brand ? [record.brand] : undefined,
-              vehicle_type: record.vehicle_type ? [record.vehicle_type] : undefined,
+              brand: record.brand || undefined,
+              vehicle_type: record.vehicle_type || undefined,
             })
             setOpen(true)
           }} />
@@ -154,8 +136,8 @@ export default function VehiclesPage() {
         <Form form={form} layout="vertical" onFinish={values => {
           const payload = {
             ...values,
-            brand: Array.isArray(values.brand) ? values.brand[0] : values.brand,
-            vehicle_type: (Array.isArray(values.vehicle_type) ? values.vehicle_type[0] : values.vehicle_type).toLowerCase(),
+            brand: values.brand,
+            vehicle_type: String(values.vehicle_type || '').toLowerCase(),
           }
           editing ? updateMutation.mutate(payload) : createMutation.mutate(payload)
         }}>
@@ -179,14 +161,14 @@ export default function VehiclesPage() {
               <Form.Item name="vehicle_type" label="Tipo" rules={[{ required: true }]}>
                 <Select
                   showSearch
-                  mode="tags"
-                  maxCount={1}
                   optionFilterProp="label"
-                  placeholder="Selecciona o escribe un tipo"
-                  options={[...new Set([
-                    ...baseVehicleTypes.map(t => t.label),
-                    ...(Array.isArray(vehicles?.results || vehicles) ? (vehicles?.results || vehicles).map((v: any) => formatType(v.vehicle_type)) : []),
-                  ])].map(t => ({ value: t.toLowerCase().replace(/[\s-]/g, '_'), label: t }))}
+                  placeholder="Selecciona un tipo"
+                  options={[
+                    ...baseVehicleTypes.map(t => ({ value: t.value, label: t.label })),
+                    ...(Array.isArray(vehicles?.results || vehicles) ? (vehicles?.results || vehicles)
+                      .map((v: any) => ({ value: v.vehicle_type, label: formatType(v.vehicle_type) }))
+                      .filter((o: any) => !baseVehicleTypes.some(t => t.value === o.value)) : []),
+                  ]}
                 />
               </Form.Item>
             </Col>
@@ -194,12 +176,10 @@ export default function VehiclesPage() {
               <Form.Item name="brand" label="Marca" rules={[{ required: true }]}>
                 <Select
                   showSearch
-                  mode="tags"
-                  maxCount={1}
                   optionFilterProp="label"
-                  placeholder="Selecciona o escribe una marca"
+                  placeholder="Selecciona una marca"
                   options={[...new Set([
-                    ...baseBrands,
+                    ...(Array.isArray(brands) ? brands.filter((b: any) => b.is_active).map((b: any) => b.name) : []),
                     ...(Array.isArray(vehicles?.results || vehicles) ? (vehicles?.results || vehicles).map((v: any) => formatBrand(v.brand)) : []),
                   ])].map(b => ({ value: b, label: b }))}
                 />

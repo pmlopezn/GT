@@ -12,13 +12,15 @@ class ServiceVehiclePriceSerializer(serializers.ModelSerializer):
     vehicle_type_display = serializers.SerializerMethodField()
 
     VEHICLE_TYPE_DISPLAY = {
-        'automovil': 'Automóvil',
-        'vagoneta': 'Vagoneta',
-        'camioneta': 'Camioneta',
-        'camion': 'Camión',
-        'trufi': 'Trufi',
-        'micro': 'Micro',
+        'automovil': 'Automovil (Hatchback)',
+        'vagoneta': 'SUV (Vagoneta)',
+        'camioneta': 'Pickup (Camioneta)',
+        'cross': 'Cross',
         'minivan': 'Minivan',
+        'trufi': 'Minibus',
+        'micro': 'Micro',
+        'furgoneta': 'Furgoneta Van',
+        'camion': 'Camion',
     }
 
     def get_vehicle_type_display(self, obj):

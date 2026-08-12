@@ -8,16 +8,7 @@ import { CarOutlined, HistoryOutlined, EyeOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
-
-const vehicleTypes = [
-  { value: 'automovil', label: 'Automóvil' },
-  { value: 'vagoneta', label: 'Vagoneta' },
-  { value: 'camioneta', label: 'Camioneta' },
-  { value: 'camion', label: 'Camión' },
-  { value: 'trufi', label: 'Trufi' },
-  { value: 'micro', label: 'Micro' },
-  { value: 'minivan', label: 'Minivan' },
-]
+import { vehicleTypes } from '../constants/vehicleTypes'
 
 const statusLabels: Record<string, { color: string; label: string }> = {
   pending: { color: 'orange', label: 'Pendiente' },

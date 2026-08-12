@@ -1,7 +1,9 @@
 from rest_framework import viewsets, permissions
-from .models import Customer, Vehicle
-from .serializers import CustomerSerializer, CustomerListSerializer, VehicleSerializer
-from apps.accounts.permissions import IsAdminOrReceptionist
+from .models import Customer, Vehicle, VehicleBrand
+from .serializers import (
+    CustomerSerializer, CustomerListSerializer, VehicleSerializer, VehicleBrandSerializer
+)
+from apps.accounts.permissions import IsAdminOrReceptionist, IsAdminOrReceptionistReadAdminWrite
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
@@ -24,3 +26,10 @@ class VehicleViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         return VehicleSerializer
+
+
+class VehicleBrandViewSet(viewsets.ModelViewSet):
+    queryset = VehicleBrand.objects.all()
+    permission_classes = [IsAdminOrReceptionistReadAdminWrite]
+    serializer_class = VehicleBrandSerializer
+    search_fields = ["name"]

@@ -20,3 +20,12 @@ class IsAdminOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return request.user.role in ("admin", "receptionist", "mechanic")
         return request.user.role == "admin"
+
+
+class IsAdminOrReceptionistReadAdminWrite(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        if request.method in SAFE_METHODS:
+            return request.user.role in ("admin", "receptionist")
+        return request.user.role == "admin"

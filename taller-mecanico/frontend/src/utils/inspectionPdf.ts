@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { vehicleTypes } from '../constants/vehicleTypes'
 
 interface InspectionPdfData {
   workOrder: any
@@ -8,6 +9,9 @@ interface InspectionPdfData {
   employees: any[]
   userName?: string
 }
+
+const vehicleTypeLabel = (v: string) =>
+  vehicleTypes.find(t => t.value === v)?.label || v
 
 const COMPANY = {
   name: 'GT Automotriz',
@@ -109,7 +113,7 @@ export async function generateInspectionPdf(data: InspectionPdfData) {
 
   if (veh) {
     infoRows.push(['Vehículo', `${veh.brand} ${veh.model} - ${veh.plate}`, 'Año', String(veh.year || '—')])
-    infoRows.push(['Tipo', veh.vehicle_type || '—', 'Color', veh.color || '—'])
+    infoRows.push(['Tipo', vehicleTypeLabel(veh.vehicle_type) || '—', 'Color', veh.color || '—'])
   } else {
     infoRows.push(['Vehículo', data.workOrder?.vehicle_plate || '—', '', ''])
   }

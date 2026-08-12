@@ -129,6 +129,47 @@ export async function generateWorkOrderPdf(data: WorkOrderPdfData) {
 
   y = (doc as any).lastAutoTable?.finalY + 8 || y + 30
 
+  // Problema reportado / Diagnóstico inicial
+  const sections: [string, string][] = [
+    ['Problema reportado por el propietario', wo.reported_problem],
+    ['Diagnóstico inicial del mecánico', wo.initial_diagnosis],
+  ]
+  const hasDiagnosis = sections.some(([, text]) => typeof text === 'string' && text.trim())
+  if (hasDiagnosis) {
+    if (y + 20 > doc.internal.pageSize.getHeight() - 30) {
+      doc.addPage(); y = margin
+    }
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+    doc.text('MOTIVO DE INGRESO / DIAGNÓSTICO', margin, y)
+    y += 6
+    doc.setDrawColor(200, 200, 200)
+    doc.setLineWidth(0.3)
+    doc.line(margin, y, pageWidth - margin, y)
+    y += 5
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(40, 40, 40)
+    sections.forEach(([label, text]) => {
+      const value = (typeof text === 'string' && text.trim()) ? text : '—'
+      const labelLines = doc.splitTextToSize(`${label}:`, availWidth * 0.34)
+      const valueLines = doc.splitTextToSize(value, availWidth * 0.6)
+      const blockHeight = Math.max(labelLines.length, valueLines.length) * 4.5 + 4
+      if (y + blockHeight > doc.internal.pageSize.getHeight() - 25) {
+        doc.addPage(); y = margin
+      }
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8.5)
+      doc.setTextColor(80, 80, 80)
+      doc.text(labelLines, margin, y)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(40, 40, 40)
+      doc.text(valueLines, margin + availWidth * 0.36, y)
+      y += blockHeight + 2
+    })
+    y += 3
+  }
+
   // Services
   const services = Array.isArray(wo.services) ? wo.services : []
   if (services.length > 0) {

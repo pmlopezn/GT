@@ -5,16 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { generatePdfReport } from '../utils/pdfReport'
-
-const vehicleTypes = [
-  { value: 'automovil', label: 'Automóvil' },
-  { value: 'vagoneta', label: 'Vagoneta' },
-  { value: 'camioneta', label: 'Camioneta' },
-  { value: 'camion', label: 'Camión' },
-  { value: 'trufi', label: 'Trufi' },
-  { value: 'micro', label: 'Micro' },
-  { value: 'minivan', label: 'Minivan' },
-]
+import { vehicleTypes } from '../constants/vehicleTypes'
 
 export default function ServicesPage() {
   const { user } = useAuth()
