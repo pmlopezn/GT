@@ -100,11 +100,17 @@ export async function generateWorkOrderPdf(data: WorkOrderPdfData) {
     invoiced: 'Facturado', cancelled: 'Cancelado',
   }
 
+  const fmtDate = (v: string | null | undefined) => v ? new Date(v).toLocaleString('es-BO') : '—'
+
   const infoRows: [string, string, string, string][] = [
     ['Cliente', wo.customer_name || '—', 'Vehículo', wo.vehicle_plate || '—'],
     ['Mecánico', wo.assigned_to_name || '—', 'Estado', statusLabels[wo.status] || wo.status || '—'],
-    ['Creado', wo.created_at ? new Date(wo.created_at).toLocaleDateString('es-BO') : '—', 'Completado', wo.completed_at ? new Date(wo.completed_at).toLocaleDateString('es-BO') : '—'],
+    ['Creado', fmtDate(wo.created_at), 'Asignado', fmtDate(wo.assigned_at)],
+    ['Concluido', fmtDate(wo.completed_at), 'Facturado', fmtDate(wo.invoiced_at)],
   ]
+  if (wo.cancelled_at) {
+    infoRows.push(['Cancelado', fmtDate(wo.cancelled_at), '', ''])
+  }
 
   autoTable(doc, {
     body: infoRows.map(r => [r[0], r[1], r[2], r[3]]),
@@ -247,6 +253,68 @@ export async function generateWorkOrderPdf(data: WorkOrderPdfData) {
 
     y = (doc as any).lastAutoTable?.finalY + 8
   }
+
+  // Observaciones del mecánico
+  const observations = typeof wo.mechanic_observations === 'string' ? wo.mechanic_observations.trim() : ''
+  if (observations) {
+    if (y + 24 > doc.internal.pageSize.getHeight() - 30) {
+      doc.addPage(); y = margin
+    }
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+    doc.text('OBSERVACIONES DEL MECÁNICO', margin, y)
+    y += 6
+    doc.setDrawColor(200, 200, 200)
+    doc.setLineWidth(0.3)
+    doc.line(margin, y, pageWidth - margin, y)
+    y += 5
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(40, 40, 40)
+    const obsLines = doc.splitTextToSize(observations, availWidth)
+    if (y + obsLines.length * 4.5 > doc.internal.pageSize.getHeight() - 25) {
+      doc.addPage(); y = margin
+    }
+    doc.text(obsLines, margin, y)
+    y += obsLines.length * 4.5 + 8
+  }
+
+  // Checklist de confirmación
+  const checklistItems: [string, boolean][] = [
+    ['Revisé el nivel de líquidos y aceites', !!wo.checklist_fluids_ok],
+    ['Revisé las tapas de depósitos de líquidos y aceites', !!wo.checklist_caps_ok],
+    ['Realicé el ajuste de tuercas y ruedas', !!wo.checklist_lug_nuts_ok],
+    ['Realicé el ajuste correcto de pernos, tornillos y abrazaderas', !!wo.checklist_fasteners_ok],
+  ]
+  if (y + 40 > doc.internal.pageSize.getHeight() - 30) {
+    doc.addPage(); y = margin
+  }
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+  doc.text('CHECKLIST DE CONFIRMACIÓN DEL TRABAJO', margin, y)
+  y += 6
+  doc.setDrawColor(200, 200, 200)
+  doc.setLineWidth(0.3)
+  doc.line(margin, y, pageWidth - margin, y)
+  y += 6
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(40, 40, 40)
+  checklistItems.forEach(([label, done]) => {
+    if (y + 6 > doc.internal.pageSize.getHeight() - 25) {
+      doc.addPage(); y = margin
+    }
+    doc.setDrawColor(120, 120, 120)
+    doc.setLineWidth(0.5)
+    doc.circle(margin + 2, y - 1.5, 2)
+    doc.setFontSize(9)
+    doc.setFont('helvetica', done ? 'bold' : 'normal')
+    doc.text(`${done ? '✓' : '✗'}  ${label}`, margin + 8, y)
+    y += 6
+  })
+  y += 6
 
   // Total
   if (y + 15 > doc.internal.pageSize.getHeight() - 30) {

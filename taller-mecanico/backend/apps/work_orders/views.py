@@ -52,7 +52,10 @@ class WorkOrderViewSet(viewsets.ModelViewSet):
             return Response({"error": "Mecánico no válido"}, status=status.HTTP_400_BAD_REQUEST)
         work_order.assigned_to = mechanic
         work_order.status = WorkOrder.Status.IN_PROGRESS
-        work_order.save(update_fields=["assigned_to", "status"])
+        now = timezone.now()
+        work_order.assigned_at = now
+        work_order.in_progress_at = now
+        work_order.save(update_fields=["assigned_to", "status", "assigned_at", "in_progress_at"])
         return Response({"status": work_order.status, "assigned_to": mechanic.id, "assigned_to_name": str(mechanic)})
 
     @action(detail=True, methods=["post"])
@@ -73,9 +76,43 @@ class WorkOrderViewSet(viewsets.ModelViewSet):
                     (work_order.status == "in_progress" and new_status == "pending")):
                 return Response({"error": "Transición no permitida para recepcionista"}, status=status.HTTP_403_FORBIDDEN)
         work_order.status = new_status
+        update_fields = ["status"]
         if new_status == WorkOrder.Status.COMPLETED:
+            observations = str(request.data.get("mechanic_observations", "") or "").strip()
+            checklist = {
+                "checklist_fluids_ok": bool(request.data.get("checklist_fluids_ok")),
+                "checklist_caps_ok": bool(request.data.get("checklist_caps_ok")),
+                "checklist_lug_nuts_ok": bool(request.data.get("checklist_lug_nuts_ok")),
+                "checklist_fasteners_ok": bool(request.data.get("checklist_fasteners_ok")),
+            }
+            if not observations:
+                return Response(
+                    {"error": "Las observaciones del mecánico son obligatorias antes de completar la orden"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not all(checklist.values()):
+                return Response(
+                    {"error": "Debes confirmar las 4 verificaciones del checklist antes de completar la orden"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            work_order.mechanic_observations = observations
+            for field, value in checklist.items():
+                setattr(work_order, field, value)
             work_order.completed_at = timezone.now()
-        work_order.save(update_fields=["status", "completed_at"])
+            update_fields += ["mechanic_observations", *checklist.keys(), "completed_at"]
+        elif new_status == WorkOrder.Status.IN_PROGRESS:
+            work_order.in_progress_at = timezone.now()
+            update_fields.append("in_progress_at")
+        elif new_status == WorkOrder.Status.INVOICED:
+            work_order.invoiced_at = timezone.now()
+            update_fields.append("invoiced_at")
+        elif new_status == WorkOrder.Status.CANCELLED:
+            work_order.cancelled_at = timezone.now()
+            update_fields.append("cancelled_at")
+        elif new_status == WorkOrder.Status.PENDING:
+            work_order.in_progress_at = None
+            update_fields.append("in_progress_at")
+        work_order.save(update_fields=update_fields)
         return Response({"status": new_status})
 
     @action(detail=True, methods=["post"])

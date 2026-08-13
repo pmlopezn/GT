@@ -125,10 +125,19 @@ class WorkOrder(models.Model):
     notes = models.TextField(blank=True)
     reported_problem = models.TextField(blank=True, verbose_name="Problema reportado por el propietario")
     initial_diagnosis = models.TextField(blank=True, verbose_name="Diagnóstico inicial del mecánico")
+    mechanic_observations = models.TextField(blank=True, verbose_name="Observaciones del mecánico")
+    checklist_fluids_ok = models.BooleanField(default=False, verbose_name="Niveles de líquidos y aceites revisados")
+    checklist_caps_ok = models.BooleanField(default=False, verbose_name="Tapas de depósitos de líquidos y aceites revisadas")
+    checklist_lug_nuts_ok = models.BooleanField(default=False, verbose_name="Ajuste de tuercas y ruedas realizado")
+    checklist_fasteners_ok = models.BooleanField(default=False, verbose_name="Ajuste de pernos, tornillos y abrazaderas realizado")
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     updated_at = models.DateTimeField(auto_now=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
+    assigned_at = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de asignación")
+    in_progress_at = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de inicio de trabajo")
+    completed_at = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de conclusión")
+    invoiced_at = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de facturación")
+    cancelled_at = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de cancelación")
 
     class Meta:
         verbose_name = "Orden de trabajo"

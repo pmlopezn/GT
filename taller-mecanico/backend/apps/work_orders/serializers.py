@@ -1,5 +1,6 @@
 from rest_framework import serializers
 import unicodedata
+from django.utils import timezone
 from .models import WorkOrder, WorkOrderService, WorkOrderProduct, VehicleInspection
 from apps.service_catalog.models import ServiceVehiclePrice
 
@@ -88,7 +89,8 @@ class WorkOrderListSerializer(serializers.ModelSerializer):
         model = WorkOrder
         fields = [
             "id", "customer_name", "vehicle_info", "assigned_to_name", "assigned_to",
-            "status", "total", "created_at", "completed_at",
+            "status", "total", "created_at", "assigned_at", "in_progress_at",
+            "completed_at", "invoiced_at", "cancelled_at",
         ]
 
     def get_vehicle_info(self, obj):
@@ -114,7 +116,13 @@ class WorkOrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkOrder
         fields = "__all__"
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = [
+            "id", "created_at", "updated_at",
+            "assigned_at", "in_progress_at", "completed_at", "invoiced_at", "cancelled_at",
+            "mechanic_observations",
+            "checklist_fluids_ok", "checklist_caps_ok",
+            "checklist_lug_nuts_ok", "checklist_fasteners_ok",
+        ]
 
     def get_assigned_to_name(self, obj):
         if obj.assigned_to:
@@ -131,6 +139,9 @@ class WorkOrderCreateSerializer(serializers.ModelSerializer):
         fields = [
             "id", "customer", "vehicle", "assigned_to", "status",
             "description", "notes", "reported_problem", "initial_diagnosis",
+            "mechanic_observations",
+            "checklist_fluids_ok", "checklist_caps_ok",
+            "checklist_lug_nuts_ok", "checklist_fasteners_ok",
             "total", "services_data", "products_data",
         ]
         read_only_fields = ["id", "status"]
@@ -152,6 +163,8 @@ class WorkOrderCreateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         services_data = validated_data.pop("services_data", None)
         products_data = validated_data.pop("products_data", None)
+        if "assigned_to" in validated_data:
+            validated_data["assigned_at"] = timezone.now()
         vehicle_type = instance.vehicle.vehicle_type if instance.vehicle else None
         if "vehicle" in validated_data and validated_data["vehicle"]:
             vehicle_type = validated_data["vehicle"].vehicle_type

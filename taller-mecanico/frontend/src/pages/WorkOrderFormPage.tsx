@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Card, Form, Select, Input, InputNumber, Button, Space, Typography, message, Spin, Divider,
-  Table, Tag, Row, Col,
+  Table, Tag, Row, Col, Modal, Checkbox,
 } from 'antd'
 import { PlusOutlined, DeleteOutlined, PrinterOutlined, CheckCircleOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -36,6 +36,20 @@ export default function WorkOrderFormPage() {
   const [productsRows, setProductsRows] = useState<any[]>([])
   const getServicePriceRef = useRef<(id: number) => number>(() => 0)
   const getProductPriceRef = useRef<(id: number) => number>(() => 0)
+  const [completeOpen, setCompleteOpen] = useState(false)
+  const [checklist, setChecklist] = useState({
+    fluids: false,
+    caps: false,
+    lugNuts: false,
+    fasteners: false,
+  })
+
+  const completeChecklistItems = [
+    { key: 'fluids', label: 'Revisé el nivel de líquidos y aceites' },
+    { key: 'caps', label: 'Revisé las tapas de depósitos de líquidos y aceites' },
+    { key: 'lugNuts', label: 'Realicé el ajuste de tuercas y ruedas' },
+    { key: 'fasteners', label: 'Realicé el ajuste correcto de pernos, tornillos y abrazaderas' },
+  ] as const
 
   useEffect(() => {
     if (!isEdit && isMechanic) {
@@ -102,7 +116,7 @@ export default function WorkOrderFormPage() {
   })
 
   const statusMutation = useMutation({
-    mutationFn: (status: string) => api.post(`/work-orders/${id}/change_status/`, { status }),
+    mutationFn: (data: Record<string, any>) => api.post(`/work-orders/${id}/change_status/`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['work-orders'] })
       queryClient.invalidateQueries({ queryKey: ['work-order', id] })
@@ -243,7 +257,27 @@ export default function WorkOrderFormPage() {
   }
 
   const handleComplete = () => {
-    statusMutation.mutate('completed')
+    const observations = String(form.getFieldValue('mechanic_observations') || '').trim()
+    if (!observations) {
+      message.warning('Las observaciones del mecánico son obligatorias antes de completar la orden')
+      return
+    }
+    setCompleteOpen(true)
+  }
+
+  const handleConfirmComplete = () => {
+    if (!Object.values(checklist).every(Boolean)) {
+      message.warning('Debes confirmar las 4 verificaciones del checklist')
+      return
+    }
+    statusMutation.mutate({
+      status: 'completed',
+      mechanic_observations: String(form.getFieldValue('mechanic_observations') || '').trim(),
+      checklist_fluids_ok: checklist.fluids,
+      checklist_caps_ok: checklist.caps,
+      checklist_lug_nuts_ok: checklist.lugNuts,
+      checklist_fasteners_ok: checklist.fasteners,
+    })
   }
 
   const mechanicLocked = isMechanic && order?.status === 'completed'
@@ -366,6 +400,22 @@ export default function WorkOrderFormPage() {
           {statusLabels[currentStatus]?.label || currentStatus}
         </Tag>
       )}
+      {isEdit && (
+        <div style={{ marginBottom: 8, display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+          {[
+            ['Creado', order?.created_at],
+            ['Asignado', order?.assigned_at],
+            ['Concluido', order?.completed_at],
+            ['Facturado', order?.invoiced_at],
+            ['Cancelado', order?.cancelled_at],
+          ].map(([label, value]) => (
+            <Typography.Text key={String(label)} type="secondary" style={{ fontSize: 12 }}>
+              <b>{label}:</b>{' '}
+              {value ? new Date(value as string).toLocaleString('es-BO') : '—'}
+            </Typography.Text>
+          ))}
+        </div>
+      )}
       <Card
         extra={
           <Space>
@@ -460,6 +510,22 @@ export default function WorkOrderFormPage() {
             style={{ marginBottom: 16 }}
           />
 
+          {isEdit && (
+            <>
+              <Divider orientation="left">Observaciones del mecánico</Divider>
+              <Form.Item
+                name="mechanic_observations"
+                label="Registra las observaciones antes de completar la orden (ej. cambio o no de piezas, consentimiento del cliente ante algún desperfecto)"
+              >
+                <Input.TextArea
+                  rows={4}
+                  disabled={mechanicLocked}
+                  placeholder="Ej.: Se reemplazó la bomba de agua con consentimiento del propietario..."
+                />
+              </Form.Item>
+            </>
+          )}
+
           {!isMechanic && (
             <Typography.Title level={5} style={{ textAlign: 'right' }}>
               Total: Bs. {calcTotal().toFixed(2)}
@@ -490,6 +556,35 @@ export default function WorkOrderFormPage() {
           </Space>
         </Form>
       </Card>
+
+      <Modal
+        title="Confirmación del trabajo"
+        open={completeOpen}
+        onCancel={() => setCompleteOpen(false)}
+        onOk={handleConfirmComplete}
+        okText="Confirmar y Completar"
+        cancelText="Cancelar"
+        confirmLoading={statusMutation.isPending}
+        okButtonProps={{ disabled: !Object.values(checklist).every(Boolean) }}
+        destroyOnClose
+      >
+        <Typography.Paragraph type="secondary">
+          Confirma que realizaste las siguientes verificaciones antes de completar la orden:
+        </Typography.Paragraph>
+        <Checkbox.Group
+          style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
+          value={completeChecklistItems.filter(i => checklist[i.key]).map(i => i.key)}
+          onChange={(vals) => {
+            const next = { fluids: false, caps: false, lugNuts: false, fasteners: false } as typeof checklist
+            ;(vals as string[]).forEach((v) => { next[v as keyof typeof checklist] = true })
+            setChecklist(next)
+          }}
+        >
+          {completeChecklistItems.map(item => (
+            <Checkbox key={item.key} value={item.key}>{item.label}</Checkbox>
+          ))}
+        </Checkbox.Group>
+      </Modal>
     </div>
   )
 }

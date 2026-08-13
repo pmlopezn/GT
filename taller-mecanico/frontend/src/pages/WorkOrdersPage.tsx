@@ -56,7 +56,9 @@ export default function WorkOrdersPage() {
 
   const getStatusOptions = (currentStatus: string) => {
     if (role === 'admin') {
-      return Object.entries(statusLabels).map(([k, v]) => ({ value: k, label: v.label }))
+      return Object.entries(statusLabels)
+        .filter(([k]) => k !== 'completed')
+        .map(([k, v]) => ({ value: k, label: v.label }))
     }
     if (role === 'receptionist') {
       if (currentStatus === 'completed') return [{ value: 'invoiced', label: 'Facturado' }]
@@ -65,7 +67,6 @@ export default function WorkOrdersPage() {
       return []
     }
     if (role === 'mechanic') {
-      if (currentStatus === 'in_progress') return [{ value: 'completed', label: 'Completado' }]
       return []
     }
     return []
@@ -121,7 +122,15 @@ export default function WorkOrdersPage() {
         }]),
     {
       title: 'Creado', dataIndex: 'created_at', key: 'created_at',
-      render: (v: string) => new Date(v).toLocaleDateString(),
+      render: (v: string) => v ? new Date(v).toLocaleDateString() : '—',
+    },
+    {
+      title: 'Asignado', dataIndex: 'assigned_at', key: 'assigned_at',
+      render: (v: string) => v ? new Date(v).toLocaleDateString() : '—',
+    },
+    {
+      title: 'Concluido', dataIndex: 'completed_at', key: 'completed_at',
+      render: (v: string) => v ? new Date(v).toLocaleDateString() : '—',
     },
     {
       title: 'Acciones', key: 'actions', width: 80,
